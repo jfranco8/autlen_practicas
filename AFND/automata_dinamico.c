@@ -47,7 +47,7 @@ int main(int argc, char ** argv){
 
   fgets(aux_char, 10, (FILE *)automata);
   num_simbolos = atoi(aux_char);
-  max_linea=num_simbolos+2;
+  max_linea=num_simbolos+4;
   printf("num_simbolos %d\n", num_simbolos);
 
   fgets(aux_char, 10, (FILE *)automata);
@@ -83,46 +83,97 @@ int main(int argc, char ** argv){
   tabla = (char***)malloc(sizeof(char**)*num_estados);
   for(i=0; i<num_estados; i++){
     tabla[i] = (char**)malloc(sizeof(char*)*num_estados);
-    for(j=0; j<num_simbolos; j++){
+    for(j=0; j<num_estados; j++){
       tabla[i][j] = (char*)malloc(sizeof(char)*num_simbolos);
     }
   }
 
-  i=0;
-  while(fgets(buffer, max_linea, (FILE *)automata)){
-    printf("buffer lee %s\n", buffer);
-    estado_actual = atoi(&buffer[0]);
-    printf("estado actual %d\n", estado_actual);
-    estado_final = atoi(&buffer[1]);
-    printf("estado final %d\n", estado_final);
-    i=2;
-    j=0;
-    while(buffer[i]){
-      tabla[estado_actual][estado_final][j]=buffer[i];
-      printf("%c\n", buffer[i]);
-      i++;
-      j++;
+  for(i=0; i<num_estados; i++){
+    for(j=0; j<num_estados; j++){
+      for(k=0; k<num_simbolos; k++){
+        tabla[i][j][k] = '*';
+      }
     }
   }
 
+  char buf;
+  i=0;
+  while(fgets(buffer, max_linea, automata)){
+    printf("buffer lee %s\n", buffer);
+    buf = buffer[0];
+    estado_actual = atoi(&buf);
+    printf("estado actual %d\n", estado_actual);
+    buf = buffer[1];
+    estado_final = atoi(&buf);
+    printf("estado final %d\n", estado_final);
+    i=2;
+    j=0;
+    //empezamos a coger las letras
+    for(i=2; i<num_simbolos+2; i++){
+      tabla[estado_actual][estado_final][i-2]=buffer[i];
+      printf("- %c - lo que guarda %c\n", buffer[i], tabla[estado_actual][estado_final][i-2]);
+    }
+  }
+
+  // for(i=0; i<4; i++){
+  //   for(j=0; j<4; j++){
+  //     printf("%c \n", tabla[i][j][0]);
+  //   }
+  // }
+  //
+  // for(i=0; i<4; i++){
+  //   for(j=0; j<4; j++){
+  //     printf("%c \n", tabla[i][j][1]);
+  //   }
+  // }
+
   //Comprobamos que la entrada esté determinada por  el autómata
-  int estado = ini, *nuevo_estado = NULL;
-  int l;
+
+  int estado = ini, *nuevo_estado = NULL, *estado_destino = NULL;
+  int l, p;
+  int flag = 1;
   nuevo_estado = (int*)malloc(sizeof(int)*num_estados);
-  nuevo_estado[0]=estado;
-  for(i=0; i<strlen(argv[1]);i++){
-    printf("Leo %c \n", entrada[i]);
-    for(l=0; l<num_estados;l++){}
-      for(j=0; j<num_estados;j++){
-        for(k=0; k<num_simbolos;k++){
-          estado = nuevo_estado[l];
-          if(tabla[estado][j][k]==entrada[i]){
-            nuevo_estado[l]=j;
+  estado_destino = (int*)malloc(sizeof(int)*num_estados);
+  for(i=0; i<num_estados; i++){
+    nuevo_estado[i]=1;
+  }
+  for(i=0; i<num_estados; i++){
+    estado_destino[i]=1;
+  }
+  nuevo_estado[ini]=0;
+  for(i=0; i<strlen(argv[1]);i++){//leemos la entrada
+    printf("----- Leo %c \n", entrada[i]);
+    for(l=0; l<num_estados;l++){
+      if(nuevo_estado[l] == 0){
+        estado = l;
+        // nuevo_estado[l]=1;
+        //estado_destino[l]=1;
+        for(j=0; j<num_estados;j++){
+          for(k=0; k<num_simbolos;k++){//posibles transiciones
+            printf("estado actual%d\n", estado);
+            // printf("tabla[%d][%d][%d]%c " ,estado, j, k, tabla[estado][j][k]);
+            if(tabla[estado][j][k]==entrada[i]){
+              printf("estado siguiente posible%d\n", j);
+              // flag = 0;
+              estado_destino[j]=0;
+            }
           }
         }
+        // if(flag == 0){
+        //   flag = 1;
+        //   break;
+        // }
       }
+      if(l == num_estados-1){
+        for(p=0; p<num_estados; p++){
+          nuevo_estado[p]=estado_destino[p];
+          estado_destino[p]=1;
+
+        }
+      }
+    }
       if(entrada[i+1] == '\0'){
-        if(nuevo_estado[l]==fin){
+        if(nuevo_estado[fin]==0){
           printf("Palabra aceptada\n");
           return 0;
         }
