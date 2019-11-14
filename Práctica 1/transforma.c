@@ -1,44 +1,72 @@
 #include "transforma.h"
 
 typedef struct{
-  char *nombre_estado;
-  char *estados;
-}nuevo_estado;
+  char simbolo[MAX_NOMBRE]; //es el simbolo con el que puedo ir al estado final
+  char estado_final[MAX_NOMBRE];
+  int *t_codificacion; //esto es una lista [1,1,0,0,0,0,1,0]
+}Transicion;
 
 typedef struct{
-  char *simbolo;
-  nuevo_estado inicio;
-  nuevo_estado fin;
-}transicion;
+  char nombre_estado[MAX_NOMBRE];
+  int *i_codificacion; //esto es una lista [1,1,0,0,0,0,1,0]
+  int tipo; //tipo que va a ser: final, inicial, etc
+  Transicion transiciones[MAX_TRANSICIONES]; //no se es necesario hacerlo dinamico, con lo cual lo hemos hecho estatico
+}Intermedia;
 
-typedef struct{
-  nuevo_estado *estados;
-  transicion *transiciones;
-}intermedia;
 
-int ordenAlfabetico(char *cadena1, char *cadena2){
-  if(!cadena1 || !cadena2){
-    return NULL;
+/*
+*
+*
+*
+*/
+Transicion *crear_transicion(num_estados) {
+  Transicion *transicion = NULL;
+  int i;
+
+  transicion->t_codificacion = (int*)malloc(sizeof(int)*num_estados);
+  for (i = 0; i < num_estados; i++) {
+    transicion->t_codificacion[i] = 0;
   }
 
-  int l;
-  if(strlen(cadena1) < strlen(cadena2)){
-    l = strlen(cadena1);
-  } else {
-    l = strlen(cadena2);
-  }
-
-  int i, compara = 1;
-  for(i=0; i<l, i++){
-    if(cadena1[i] < cadena2[i]){
-      compara = 0;
-      break;
-    }
-  }
-
-  return compara;
+  //ya esta todo inicializado
+  return transicion;
 }
 
+/*
+*
+*
+*
+*/
+Intermedia *crear_intermedia(nombre, num_estados, tipo) {
+  Intermedia *intermedia = NULL;
+  int i;
+
+  intermedia->tipo = tipo;
+  intermedia->i_codificacion = (int*)malloc(sizeof(int)*num_estados);
+
+  //hay que inicializarla toda a 0
+  for (i = 0; i< num_estados; i++) {
+    intermedia->i_codificacion[i] = 0;
+  }
+
+  //transiciones es un estatico con lo cual demomento no tenemos que inicializarlo
+  //ya esta todo inicializado
+  return intermedia;
+}
+
+
 AFND* AFNDTransforma(AFND* afnd){
+
+  Intermedia *intermedia = NULL;
+  int num_estados, num_simbolos;
+
+  //obtenemos datos del automata original
+  num_estados = AFNDNumEstados(afnd);
+  num_simbolos = AFNDNumSimbolos(afnd);
+
+  //Comienza el algoritmo
+
+
+
 
 }
