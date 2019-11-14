@@ -64,7 +64,10 @@ AFND* AFNDTransforma(AFND* afnd){
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
 
-  //Comienza el algoritmo
+  /*
+  Yo se que toda la informacion necesaria la tengo en AFND.
+  Aqui ya tengo las transiciones y los num_simbolos
+
 
 
 
