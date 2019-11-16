@@ -84,7 +84,7 @@ Intermedia *crear_intermedia(char* nombre, int num_estados, int tipo) {
 *
 */
 
-void eliminar_transicion(Intermedia *intermedia) {
+void eliminar_intermedia(Intermedia *intermedia) {
 
   free(intermedia->i_codificacion);
   free(intermedia);
@@ -176,6 +176,16 @@ void eliminar_transicion(Intermedia *intermedia) {
     que vamos a tener que ver si ya esta creado o no
     */
 
+// Funcion que me comprueba si algo esta en creados o no
+// HAY QUE TERMINARLA. NO LA HE HECHO PORQUE NO SABIA TODAVIA SI ERA NECESARIA
+// Devuelve 1 si ya esta en creados. 0 Si no lo esta
+int comprobar_creados(int *codificacion, Intermedia *creados) {
+  int i;
+
+  for (i = 0; i < /*no se con que comparar*/; i++) {
+    creados[i] // esto es lo que tenemos. Ahora queremos ver si su codificacion es igual
+  }
+}
 
 AFND* AFNDTransforma(AFND* afnd){
 
@@ -186,9 +196,11 @@ AFND* AFNDTransforma(AFND* afnd){
   Intermedia *expandidos = NULL; //la creo aunque demomento no etiendo para que la quiero
   int pos_inicial;
   char* nombre_inicial, *simbolo;
-  int i,i_simbolo,i_subestado, contador = 0; //i me sirve para contar por el estado que voy en la lista creados
-                                 //i_simbolo me sirve para saber porque simbolo voy 
 
+  //i_simbolo me sirve para saber porque simbolo voy 
+  //i me sirve para contar por el estado que voy en la lista creados
+  //i_cada_estado_AFND me sirve para comprobar los estados destino en las transiciones
+  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND; 
   //obtenemos datos del automata original
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
@@ -226,14 +238,41 @@ AFND* AFNDTransforma(AFND* afnd){
         if (estado_actual->i_codificacion[i_subestado] == 1) {
           //si estamos en un subestado tenemos que mirar a donde podemos ir
           //sabemos que el estado actual YA ES EN SI EL INICIAL --> en i_subestado tengo la posicion que soy: es decir si soy q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
+          //con lo cual aqui ya tenemos la informacion necesaria y suficiente: - tenemos el indice del simbolo: i_simbolo
+          //                                                                   - tenemos el indice de cada subestado i_subestado --> origen
+          //                                                                   - tenemos el indice de los destinos --> destino
+          //ahora tengo que mirar para cada estado del AFND si hay transicion --> la funcion me devuelve 1 si la hay 
+          for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND ++) {
+            if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i_subestado, i_simbolo, i_cada_estado_AFND) == 1) {
+              //es decir, si existe transicion --> tenemos que ponerlo de alguna manera
 
+              // ESTO QUE PONGO AQUI DEBAJO HAY QUE HACERLO YA?
+              //esta lista podria ser la codificacion del nuevo estado?
+              //tenemos que concatenar el nombre?
+              //Hay otra manera mas sencilla de hacerlo?
+              int* nuevo_estado;
+              char nombre_nuevo_estado[MAX_NOMBRE];
+              char str[MAX_NOMBRE]; //este sirve para pasar el nombre de cada subestado a cadena de caracteres y luego concatenar para poder hacer q0q1
+              strcat(nombre_nuevo_estado, "q");
+              sprintf(str, "%d", i_cada_estado_AFND);
+              strcat(nombre_nuevo_estado, str);
+              nuevo_estado[i_cada_estado_AFND] = 1; // lo marcamos así?
 
+              //EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
+              //PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo
+              int check = comprobar_creados(nuevo_estado, creados);
+              if (check == 0) {
+                //es decir si no esta creado --> lo creamos y lo añadimos
+                Transicion *trans_nuevo_estado = crear_transicion(num_estados, simbolo, nombre_nuevo_estado);
+                Intermedia *inter_nuevo_estado = crear_intermedia(nombre_nuevo_estado, num_estados, i); //le he pasado i por pasarle algo porque no se si es necesario el tipo
+                
 
+                creados[contador] =  //recordamos que en contador es el contador de por donde vamos en la lista de creados
+              }
+            }
+          }
         }
       }
-
     }
-
   }
-
 }
