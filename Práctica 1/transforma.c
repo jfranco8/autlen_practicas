@@ -193,15 +193,19 @@ AFND* AFNDTransforma(AFND* afnd){
   // le he puesto MAX NOMBRE PARA QUE NO ME DIERA ERROR PORQUE SI NO AL HACER creados[contador] = inicial; ME DA ERROR AL ASIGNAR VARIABLES
   Intermedia *creados[MAX_NOMBRE] = NULL, *inicial, *estado_actual; //creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd
   int num_estados, num_simbolos;
-  Intermedia *expandidos[MAX_NOMBRE]; //la creo aunque demomento no etiendo para que la quiero
+  Intermedia *expandidos[MAX_NOMBRE]; //la creo aunque demomento no etiendo para que la quiero --> ¿PARA QUE LA QUEREMOS?
   int pos_inicial;
   char* nombre_inicial, *simbolo;
 
   //i_simbolo me sirve para saber porque simbolo voy 
   //i me sirve para contar por el estado que voy en la lista creados
+  //i_subestado me sirve para saber el indice del subestado por el que voy. Si tengo q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
   //i_cada_estado_AFND me sirve para comprobar los estados destino en las transiciones
   //i_trans me dice por donde me he quedado en las transiciones de un nuevo estado
+  //contador es para saber donde tengo que añadir luego a la lista de creados
+  //contador_expandidos es para saber donde tengo que añadir luego en la lista de expandidos
   int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos; 
+
   //obtenemos datos del automata original
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
@@ -241,7 +245,7 @@ AFND* AFNDTransforma(AFND* afnd){
           //sabemos que el estado actual YA ES EN SI EL INICIAL --> en i_subestado tengo la posicion que soy: es decir si soy q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
           //con lo cual aqui ya tenemos la informacion necesaria y suficiente: - tenemos el indice del simbolo: i_simbolo
           //                                                                   - tenemos el indice de cada subestado i_subestado --> origen
-          //                                                                   - tenemos el indice de los destinos --> destino
+          //                                                                   - tenemos el indice de los destinos --> i_cada_estado_AFND --> destino
           //ahora tengo que mirar para cada estado del AFND si hay transicion --> la funcion me devuelve 1 si la hay 
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND ++) {
             if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i_subestado, i_simbolo, i_cada_estado_AFND) == 1) {
