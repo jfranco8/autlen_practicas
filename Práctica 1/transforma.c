@@ -6,6 +6,9 @@ typedef struct{
   int *t_codificacion; //esto es una lista [1,1,0,0,0,0,1,0]
 }Transicion;
 
+
+// Intermedia es la estructura que nos define los estados
+// del autómata finito determinista
 typedef struct{
   char nombre_estado[MAX_NOMBRE];
   int *i_codificacion; //esto es una lista [1,1,0,0,0,0,1,0]
@@ -15,53 +18,71 @@ typedef struct{
 
 
 /*
-* Funcion que crea una transicion
+* CREAR_TRANSICION
 *
+* Desde un estado inicial define una transicion a otro estado por medio
+* de un símbolo determinado
 *
+* Salida:
+*   transicion creada si se crea de manera satisfactoria
+*   NULL en caso de error
 */
-Transicion *crear_transicion(int num_estados, char* simbolo, char* final) {
+
+Transicion *crear_transicion(int num_estados, char* simbolo, char* final, int *estado_final) {
   Transicion *transicion = NULL;
   int i;
 
   strcpy(transicion->simbolo, simbolo);
   strpcy(transicion->estado_final,final);
 
-  //ESTO NO SE MUY BIEN SI ES ASI PORQUE IGUAL LO QUE TENGO QUE HACER ES PASARLE LA LISTA ENETERA NO ???? 
-  // ********* DUDA ************** PERO SI YA LA TENGO EN INTERMEDIA PARA QUE LA QUIERO AQUI ???? --> no me acuerdo para que era 
+  // Codificación del estado al que se transita
   transicion->t_codificacion = (int*)malloc(sizeof(int)*num_estados);
-  for (i = 0; i < num_estados; i++) {
-    transicion->t_codificacion[i] = 0;
+  if (transicion == NULL){
+    print("Error al reservar memoria para la nueva transicion\n");
+    return NULL;
   }
 
-  //ya esta todo inicializado
+  // Guardamos el estado al que se puede transitar con el símbolo dado
+  for (i = 0; i < num_estados; i++) {
+    transicion->t_codificacion[i] = estado_final[i];
+  }
+
   return transicion;
 }
 
+
 /*
-* Funcion que elimina una transicion
+* ELIMINAR_TRANSICION
 *
+* Libera toda la memoria de la transicion pasada como argumento
+*
+* Salida:
+*   void
 */
 
 void eliminar_transicion(Transicion *transicion) {
-
   free(transicion->t_codificacion);
   free(transicion);
-
 }
 
 
 /*
-* Funcion que crea una estructura intermedia
+* CREAR_INTERMEDIA
 *
+* Creación de un estado del autómata finito determinista
 *
+* Salida:
+*   estado del AFD creado si se crea de manera satisfactoria
+*   NULL en caso de error
 */
-Intermedia *crear_intermedia(char* nombre, int num_estados, int tipo) {
+
+Intermedia *crear_intermedia(char* nombre, int num_estados, int tipo, int *estado) {
   Intermedia *intermedia = NULL;
   int i;
 
   intermedia = (Intermedia *)malloc(sizeof(Intermedia));
   if (!intermedia) {
-    print("Error al reservar memoria en intermedia\n");
+    print("Error al reservar memoria para el estado el AFD\n");
     return NULL;
   }
 
@@ -69,30 +90,33 @@ Intermedia *crear_intermedia(char* nombre, int num_estados, int tipo) {
 
   intermedia->i_codificacion = (int*)malloc(sizeof(int)*num_estados);
 
-  //hay que inicializarla toda a 0
+  // Guardamos en codificacion la propia del estado (o estado) inicial
+  // Es decir, si el AFND tiene como estados iniciales q0 y q2, nuestro
+  // estado inicial en el AFD será q0q2 = [1, 0, 1, 0, 0...]
   for (i = 0; i< num_estados; i++) {
-    intermedia->i_codificacion[i] = 0;
+    intermedia->i_codificacion[i] = estado[i];
   }
 
-  //transiciones es un estatico con lo cual demomento no tenemos que inicializarlo
-  //ya esta todo inicializado
   return intermedia;
 }
 
+
 /*
-* Funcion que elimina una estructura intermedia
+* ELIMINAR_INTERMEDIA
 *
+* Libera toda la memoria del estado del AFD pasado como argumento
+*
+* Salida:
+*   void
 */
 
 void eliminar_intermedia(Intermedia *intermedia) {
-
   free(intermedia->i_codificacion);
   free(intermedia);
-
 }
 
 
-  /* ALGORITMO: 
+  /* ALGORITMO:
   Cogemos el primero que hay en la lista de los creados.
     Desde cada estado de los creados:
       Para cada simbolo:
@@ -103,12 +127,12 @@ void eliminar_intermedia(Intermedia *intermedia) {
       Añadimos una nueva transicion
       Lo añadimos a la lista de estados creados
     Lo añadimos a la lista de estados expandidos
-    
-    
-    */
 
 
-   /* En creados añadimos el estado inicial
+
+
+
+   En creados añadimos el estado inicial
    c = q0;
    para q0:
     Para cada simbolo: - 0:
@@ -135,7 +159,7 @@ void eliminar_intermedia(Intermedia *intermedia) {
                           obtenemos que desde este solo podemos ir a el mismo
                         - 1:
                         Para cada sub estado:
-                          * q0: q0 -> q0 
+                          * q0: q0 -> q0
                           * q1: q1 -> q2
                           Tenemos que crear un uevo estado --Z hacemos el or de estas dos [1,0,1,0,0] tenemos q0q2
                           Añadimos la transicion a ese estado: origen, es el mismo, es decir la estructura con la que estamos trabanando
@@ -156,16 +180,16 @@ void eliminar_intermedia(Intermedia *intermedia) {
                          Como no se puede ir a nada y q0q2 ya lo tenemos en creados el algoritmo termina y ya lo tenemos todo pensado
     Añadimos a lista de expandidos
 
-    */
 
 
-   /* !!!!!! DUDAS !!!!!!!
+
+    !!!!!! DUDAS !!!!!!!
    - para que queremos la lista expandidos ???
    - la lista de creados esta bien -> es un array de no sabemos cuanto tamaño que contiene estructuras intermedias que es donde tenemos todas esas estructuras intermedias
           - en la lista de creados tenemos todos los nuevos estados y estos nuevos estados tienen esta informacion:
                 * son ellos mismos el estado origen
                 * tienen un estado final
-                * tienen con que simbolo van a ir 
+                * tienen con que simbolo van a ir
                 (cosas a saber de la transicion)
                 * tienen su nombre
                 * tienen su codificacion para poder saber que estado es y si ya esta no lo creamos mas
@@ -176,41 +200,114 @@ void eliminar_intermedia(Intermedia *intermedia) {
     que vamos a tener que ver si ya esta creado o no
     */
 
-// Funcion que me comprueba si algo esta en creados o no
-// HAY QUE TERMINARLA. NO LA HE HECHO PORQUE NO SABIA TODAVIA SI ERA NECESARIA
-// Devuelve 1 si ya esta en creados. 0 Si no lo esta
-int comprobar_creados(int *codificacion, Intermedia *creados) {
-  int i;
 
-  for (i = 0; i < /*no se con que comparar*/; i++) {
-    creados[i] // esto es lo que tenemos. Ahora queremos ver si su codificacion es igual
+/*
+* COMPARAR_CODIFICACION
+*
+* Compara que si dos codificaciones representan al mismo estado o no
+*
+* Salida:
+*   1 si los estados son iguales
+*   0 si los estados son diferentes
+*   -1 en caso de error
+*/
+
+int comparar_codificacion(int *codificacion1, int *codificacion2){
+  if(!codificacion1 || !codificacion2){
+    return -1;
   }
+
+  int len1, len2, i;
+
+  // calculamos las longitudes de los dos arrays.
+  len1 = sizeof(len1)/sizeof(int);
+  len2 = sizeof(len2)/sizeof(int);
+
+  // si las longitudes son distintas NO pueden ser los mismos estado, ya que
+  // no forman parte del mismo AF
+  if (len1 != len2){
+    return -1;
+  }
+
+  for (i=0; i<len1; i++){
+    if(codificacion1[i] != codificacion2[i]){
+      return 0;
+    }
+  }
+
+  // si recorremos toda la lista y no hay diferencias, son iguales
+  return 1;
 }
+
+
+/*
+* IS_ESTADO_IN
+*
+* Determina si un estado ya está en la lista de estados creados o no
+*
+* Salida:
+*   1 si ya está en creado
+*   0 si no lo está
+*   -1 en caso de error
+*/
+
+int is_estado_in(int *codificacion, Intermedia *creados) {
+  int i, num_creados;
+
+  if(!codificacion  || !creados){
+    return -1;
+  }
+
+  num_creados = sizeof(creados)/sizeof(Intermedia);
+
+  for (i = 0; i < num_creados; i++) {
+    // Vemos si la codificacion dada coincide con alguna de las que ya tenemos
+    // en creados. Si coincide, devolvemos un 1
+    if (comparar_codificacion(codificacion, creados[i]->i_codificacion) == 1){
+      return 1;
+    }
+  }
+
+  // si la codificacion no coincide con ningun estados de lso ya creados,
+  // devolvemos un 0
+  return 0;
+}
+
+
+/*
+* AFNDTransforma
+*
+* Transforma un AFND en un AFD equivalente
+*
+* Salida:
+*   AFND creado equivalente
+*   NULL en caso de error
+*/
 
 AFND* AFNDTransforma(AFND* afnd){
 
   // TENGO UN LIO CON LOS PUNTEROS DE LAS COSAS ESTAS
   // le he puesto MAX NOMBRE PARA QUE NO ME DIERA ERROR PORQUE SI NO AL HACER creados[contador] = inicial; ME DA ERROR AL ASIGNAR VARIABLES
-  Intermedia *creados[MAX_NOMBRE] = NULL, *inicial, *estado_actual; //creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd
+  Intermedia *inicial, *estado_actual; //creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd
+  Intermedia *creados[MAX_NOMBRE] = NULL, *expandidos[MAX_NOMBRE] = NULL;
   int num_estados, num_simbolos;
-  Intermedia *expandidos[MAX_NOMBRE]; //la creo aunque demomento no etiendo para que la quiero --> ¿PARA QUE LA QUEREMOS?
   int pos_inicial;
   char* nombre_inicial, *simbolo;
 
-  //i_simbolo me sirve para saber porque simbolo voy 
+  //i_simbolo me sirve para saber porque simbolo voy
   //i me sirve para contar por el estado que voy en la lista creados
   //i_subestado me sirve para saber el indice del subestado por el que voy. Si tengo q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
   //i_cada_estado_AFND me sirve para comprobar los estados destino en las transiciones
   //i_trans me dice por donde me he quedado en las transiciones de un nuevo estado
   //contador es para saber donde tengo que añadir luego a la lista de creados
   //contador_expandidos es para saber donde tengo que añadir luego en la lista de expandidos
-  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos; 
+  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos;
 
   //obtenemos datos del automata original
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
 
-  //obtenemos el estado inicial. 
+  //obtenemos el estado inicial.
   //Lo que recibimos es la posicion del estado inicial
   pos_inicial = AFNDIndiceEstadoInicial(afnd);
 
@@ -222,7 +319,7 @@ AFND* AFNDTransforma(AFND* afnd){
   inicial = crear_intermedia(nombre_inicial, num_estados, pos_inicial); //a esta funcion se le pasa el tipo pero no se si es necesario --> LE HE PASADO POS_INICIAL PARA QUE NP ME SALGA ERROR TODO EL RATO PERO HAY QUE CAMBIARLO
   //lo hago aqui cuando ya he creado la estructura intermedia
   inicial->i_codificacion[pos_inicial] = 1;
-  
+
   creados[contador] = inicial;
   contador ++;
 
@@ -232,8 +329,8 @@ AFND* AFNDTransforma(AFND* afnd){
     estado_actual = creados[i];
     //ahora queremos para cada simbolo --> tenemos el numero de simbolos
     for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
-      
-      //digo yo que tendremos alguna funcion que me diga a que estados voy con ese simbolo desde el actual ??? --> creo que si que la hay 
+
+      //digo yo que tendremos alguna funcion que me diga a que estados voy con ese simbolo desde el actual ??? --> creo que si que la hay
       // lo que tengo que hacer es coger el simbolo del alfabeto
       strcpy(simbolo, AFNDSimboloEn(afnd, i_simbolo)); //ya tenemos el primer simbolo
 
@@ -246,7 +343,7 @@ AFND* AFNDTransforma(AFND* afnd){
           //con lo cual aqui ya tenemos la informacion necesaria y suficiente: - tenemos el indice del simbolo: i_simbolo
           //                                                                   - tenemos el indice de cada subestado i_subestado --> origen
           //                                                                   - tenemos el indice de los destinos --> i_cada_estado_AFND --> destino
-          //ahora tengo que mirar para cada estado del AFND si hay transicion --> la funcion me devuelve 1 si la hay 
+          //ahora tengo que mirar para cada estado del AFND si hay transicion --> la funcion me devuelve 1 si la hay
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND ++) {
             if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i_subestado, i_simbolo, i_cada_estado_AFND) == 1) {
               //es decir, si existe transicion --> tenemos que ponerlo de alguna manera
@@ -265,17 +362,17 @@ AFND* AFNDTransforma(AFND* afnd){
 
               //EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
               //PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo
-              int check = comprobar_creados(nuevo_estado, creados);
+              int check = is_estado_in(nuevo_estado, creados);
               if (check == 0) { //igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta
                 //es decir si no esta creado --> lo creamos y lo añadimos
                 Transicion *trans_nuevo_estado = crear_transicion(num_estados, simbolo, nombre_nuevo_estado);
                 Intermedia *inter_nuevo_estado = crear_intermedia(nombre_nuevo_estado, num_estados, i); //le he pasado i por pasarle algo porque no se si es necesario el tipo
-                
+
                 inter_nuevo_estado->i_codificacion = nuevo_estado; //esto no estara bien asi pero no pasa nada
                 inter_nuevo_estado->transiciones[i_trans] = trans_nuevo_estado; //tengo que añadirle la transicion de alguna manera. AQUI HAY UN ERROR CON LOS PUNTEROS Y ESO
                 creados[contador] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
               }
-              // QUEDAN COMPROBAR LAS TRANSICIONES LAMBDA. DONDE SE HACE ? creo que aqui --> aqui no porque antes estamos creando el estado, con lo cual 
+              // QUEDAN COMPROBAR LAS TRANSICIONES LAMBDA. DONDE SE HACE ? creo que aqui --> aqui no porque antes estamos creando el estado, con lo cual
               // definitivamente aqui no es
 
               if (AFNDLTransicionIJ(afnd,i_subestado, i_cada_estado_AFND) == 1) {
@@ -290,12 +387,12 @@ AFND* AFNDTransforma(AFND* afnd){
               //cuando ya la tenemos en expandidos pasa a comprobar el siguiente que hay en creados
             }
 
-            
+
           }
         }
       }
     }
-  } //fin del primer for grande 
+  } //fin del primer for grande
 
   //una vez que ya tenemos todos los estados creados que es lo que hacemos?
 
