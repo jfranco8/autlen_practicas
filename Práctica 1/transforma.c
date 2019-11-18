@@ -13,7 +13,7 @@ typedef struct{
   char nombre_estado[MAX_NOMBRE];
   int *i_codificacion; //esto es una lista [1,1,0,0,0,0,1,0]
   int tipo; //tipo que va a ser: final, inicial, etc
-  Transicion transiciones[MAX_TRANSICIONES]; //no se es necesario hacerlo dinamico, con lo cual lo hemos hecho estatico
+  Transicion *transiciones[MAX_TRANSICIONES]; //no se es necesario hacerlo dinamico, con lo cual lo hemos hecho estatico
 }Intermedia;
 
 
@@ -33,12 +33,12 @@ Transicion *crear_transicion(int num_estados, char* simbolo, char* final, int *e
   int i;
 
   strcpy(transicion->simbolo, simbolo);
-  strpcy(transicion->estado_final,final);
+  strcpy(transicion->estado_final,final);
 
   // Codificación del estado al que se transita
   transicion->t_codificacion = (int*)malloc(sizeof(int)*num_estados);
   if (transicion == NULL){
-    print("Error al reservar memoria para la nueva transicion\n");
+    printf("Error al reservar memoria para la nueva transicion\n");
     return NULL;
   }
 
@@ -82,7 +82,7 @@ Intermedia *crear_intermedia(char* nombre, int num_estados, int tipo, int *estad
 
   intermedia = (Intermedia *)malloc(sizeof(Intermedia));
   if (!intermedia) {
-    print("Error al reservar memoria para el estado el AFD\n");
+    printf("Error al reservar memoria para el estado el AFD\n");
     return NULL;
   }
 
@@ -251,7 +251,7 @@ int comparar_codificacion(int *codificacion1, int *codificacion2){
 *   -1 en caso de error
 */
 
-int is_estado_in(int *codificacion, Intermedia *creados) {
+int is_estado_in(int *codificacion, Intermedia **creados) {
   int i, num_creados;
 
   if(!codificacion  || !creados){
@@ -274,6 +274,11 @@ int is_estado_in(int *codificacion, Intermedia *creados) {
 }
 
 
+// void encuentra_lambdas(AFND *afnd, ){
+//
+// }
+
+
 /*
 * AFNDTransforma
 *
@@ -289,10 +294,15 @@ AFND* AFNDTransforma(AFND* afnd){
   // TENGO UN LIO CON LOS PUNTEROS DE LAS COSAS ESTAS
   // le he puesto MAX NOMBRE PARA QUE NO ME DIERA ERROR PORQUE SI NO AL HACER creados[contador] = inicial; ME DA ERROR AL ASIGNAR VARIABLES
   Intermedia *inicial, *estado_actual; //creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd
-  Intermedia *creados[MAX_NOMBRE] = NULL, *expandidos[MAX_NOMBRE] = NULL;
-  int num_estados, num_simbolos;
-  int pos_inicial;
+  Intermedia *creados[MAX_NOMBRE], *expandidos[MAX_NOMBRE];
+  int num_estados, num_simbolos, check, tipo_estado_nuevo;
+  int pos_inicial, cont_transiciones, k, flag_estado_final;
   char* nombre_inicial, *simbolo;
+  Transicion *trans_nuevo_estado;
+  Intermedia *inter_nuevo_estado;
+  char nombre_nuevo_estado[MAX_NOMBRE];
+  char str[MAX_NOMBRE]; //este sirve para pasar el nombre de cada subestado a cadena de caracteres y luego concatenar para poder hacer q0q1
+  AFND *determinista;
 
   //i_simbolo me sirve para saber porque simbolo voy
   //i me sirve para contar por el estado que voy en la lista creados
@@ -301,7 +311,7 @@ AFND* AFNDTransforma(AFND* afnd){
   //i_trans me dice por donde me he quedado en las transiciones de un nuevo estado
   //contador es para saber donde tengo que añadir luego a la lista de creados
   //contador_expandidos es para saber donde tengo que añadir luego en la lista de expandidos
-  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos;
+  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos = 0;
 
   //obtenemos datos del automata original
   num_estados = AFNDNumEstados(afnd);
@@ -315,18 +325,38 @@ AFND* AFNDTransforma(AFND* afnd){
   //obtenemos el nombre del estado incial
   nombre_inicial = AFNDNombreEstadoEn(afnd, pos_inicial);
 
+  int nuevo_estado[num_estados];
+  for (k=0; k<num_estados; k++){
+    nuevo_estado[k] = 0;
+  }
+
   //como soy el inicial y se que posicion tengo tendre que decirle a la i_codificacion que soy el [1,0,0,0,0]
-  inicial = crear_intermedia(nombre_inicial, num_estados, pos_inicial); //a esta funcion se le pasa el tipo pero no se si es necesario --> LE HE PASADO POS_INICIAL PARA QUE NP ME SALGA ERROR TODO EL RATO PERO HAY QUE CAMBIARLO
+  int codificacion_inicial[num_estados];
+  for (i=0; i<num_estados; i++){
+    if(i == pos_inicial){
+      codificacion_inicial[i] = 1;
+    }
+    else{
+      codificacion_inicial[i] = 0;
+    }
+  }
+
+  // COMPROBAR LAMBDAS ANTES
+  inicial = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial); //a esta funcion se le pasa el tipo pero no se si es necesario --> LE HE PASADO POS_INICIAL PARA QUE NP ME SALGA ERROR TODO EL RATO PERO HAY QUE CAMBIARLO
   //lo hago aqui cuando ya he creado la estructura intermedia
-  inicial->i_codificacion[pos_inicial] = 1;
 
   creados[contador] = inicial;
   contador ++;
+  i = contador-1;
 
   //para cada estado que tenemos en creados: ---> !! he comparado i < num_estados porque es lo unico que me cuadra pero igual lo que tneemos
   // que hacer es para cada estado del afnd ??? no se nuestro algoritmo no es asi pero ESTO HAY QUE OENSARLO
-  for (i = contador-1; i < num_estados; i++){
+  while(creados[i]){
+    cont_transiciones = 0;
     estado_actual = creados[i];
+
+
+
     //ahora queremos para cada simbolo --> tenemos el numero de simbolos
     for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
 
@@ -352,53 +382,97 @@ AFND* AFNDTransforma(AFND* afnd){
               //esta lista podria ser la codificacion del nuevo estado?
               //tenemos que concatenar el nombre?
               //Hay otra manera mas sencilla de hacerlo?
-              int* nuevo_estado;
-              char nombre_nuevo_estado[MAX_NOMBRE];
-              char str[MAX_NOMBRE]; //este sirve para pasar el nombre de cada subestado a cadena de caracteres y luego concatenar para poder hacer q0q1
+              strcpy(nombre_nuevo_estado, "");
+              strcpy(str, "");
               strcat(nombre_nuevo_estado, "q");
               sprintf(str, "%d", i_cada_estado_AFND);
               strcat(nombre_nuevo_estado, str);
               nuevo_estado[i_cada_estado_AFND] = 1; // lo marcamos así?
-
-              //EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
-              //PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo
-              int check = is_estado_in(nuevo_estado, creados);
-              if (check == 0) { //igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta
-                //es decir si no esta creado --> lo creamos y lo añadimos
-                Transicion *trans_nuevo_estado = crear_transicion(num_estados, simbolo, nombre_nuevo_estado);
-                Intermedia *inter_nuevo_estado = crear_intermedia(nombre_nuevo_estado, num_estados, i); //le he pasado i por pasarle algo porque no se si es necesario el tipo
-
-                inter_nuevo_estado->i_codificacion = nuevo_estado; //esto no estara bien asi pero no pasa nada
-                inter_nuevo_estado->transiciones[i_trans] = trans_nuevo_estado; //tengo que añadirle la transicion de alguna manera. AQUI HAY UN ERROR CON LOS PUNTEROS Y ESO
-                creados[contador] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
+              if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
+                flag_estado_final = 2;
               }
-              // QUEDAN COMPROBAR LAS TRANSICIONES LAMBDA. DONDE SE HACE ? creo que aqui --> aqui no porque antes estamos creando el estado, con lo cual
-              // definitivamente aqui no es
-
-              if (AFNDLTransicionIJ(afnd,i_subestado, i_cada_estado_AFND) == 1) {
-                //es decir si existe una transicion lambda desde i_subestado a i_cada_estado_AFND
-                //tenemos que añadir al nuevo nombre i_cada_estado_AFND y poner en nuevo_estado[i_cada_estado_AFND] a 1
-                //despues de esto ya podemos comprobar si esta en creados y si no esta lo creamos
-              }
-
-
-              //una vez que ya la hemos añadido a la lista de creados se supone que tenemos que añadir en el que estamos a expandidos --> no se muy bien para que queremos expandidos
-              expandidos[contador_expandidos] = estado_actual;
-              //cuando ya la tenemos en expandidos pasa a comprobar el siguiente que hay en creados
             }
-
-
           }
+
+          //MIRAR TRANSICIONES LAMBDAS
+
+          //EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
+          //PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo
+          check = is_estado_in(nuevo_estado, creados);
+          if (check == 0) { //igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta
+            //es decir si no esta creado --> lo creamos y lo añadimos
+            trans_nuevo_estado = crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado);
+            if (flag_estado_final == 2){
+              tipo_estado_nuevo = FINAL;
+            } else {
+              tipo_estado_nuevo = NORMAL;
+            }
+            inter_nuevo_estado = crear_intermedia(nombre_nuevo_estado, num_estados, i, nuevo_estado); //le he pasado i por pasarle algo porque no se si es necesario el tipo
+
+            creados[i]->transiciones[cont_transiciones] = trans_nuevo_estado;
+            cont_transiciones++;
+            creados[i+1] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
+
+            eliminar_intermedia(inter_nuevo_estado);
+            eliminar_transicion(trans_nuevo_estado);
+          }
+          // QUEDAN COMPROBAR LAS TRANSICIONES LAMBDA. DONDE SE HACE ? creo que aqui --> aqui no porque antes estamos creando el estado, con lo cual
+          // definitivamente aqui no es
+
+
+
+
+          //una vez que ya la hemos añadido a la lista de creados se supone que tenemos que añadir en el que estamos a expandidos --> no se muy bien para que queremos expandidos
+          // expandidos[contador_expandidos] = estado_actual;
+          // contador_expandidos++;
+          //cuando ya la tenemos en expandidos pasa a comprobar el siguiente que hay en creados
+
+
+        if (AFNDLTransicionIJ(afnd,i_subestado, i_cada_estado_AFND) == 1) {
+          //es decir si existe una transicion lambda desde i_subestado a i_cada_estado_AFND
+          //tenemos que añadir al nuevo nombre i_cada_estado_AFND y poner en nuevo_estado[i_cada_estado_AFND] a 1
+          //despues de esto ya podemos comprobar si esta en creados y si no esta lo creamos
+        }
+
+
+
         }
       }
     }
-  } //fin del primer for grande
+    i++;
+    for (k=0; k<num_estados; k++){
+      nuevo_estado[k] = 0;
+    }
+  } //fin del primer while grande
 
-  //una vez que ya tenemos todos los estados creados que es lo que hacemos?
+  //Creamos el autómata determinista para poder dibujarlo
+  contador = i+1;
+  determinista = AFNDNuevo("afd", contador, num_simbolos);
 
+  // Insertamos los símbolos en el nuevo autómata
+  for (i=0; i<num_simbolos; i++){
+    AFNDInsertaSimbolo(determinista, AFNDSimboloEn(afnd, i));
+  }
 
+  //Insetamos los estados
+  for (i=0; i<contador; i++){
+    AFNDInsertaEstado(determinista, creados[i]->nombre_estado, creados[i]->tipo);
+  }
 
+  // Insertamos las transiciones
+  // AFNDInsertaTransicion(p_afnd, "q0", "+", "q1");
+  for (i=0; i<contador; i++){
+    k = 0;
+    while(creados[i]->transiciones[k]){
+      AFNDInsertaTransicion(determinista,
+                            creados[i]->nombre_estado,
+                            creados[i]->transiciones[k]->simbolo,
+                            creados[i]->transiciones[k]->estado_final);
 
+      k++;
+    }
+  }
 
+  return determinista;
 
 }
