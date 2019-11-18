@@ -14,4 +14,4 @@ afnd.o: afnd.c afnd.h
 	$(CC) $(CFLAGS) -c afnd.c
 
 clean:
-	rm -rf pr_afnd $(OBJ)
+	rm -rf pr_afnd $(OBJ) *.dot

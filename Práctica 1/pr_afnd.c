@@ -51,7 +51,7 @@ int main(int argc, char ** argv)
 	// AFNDCierraLTransicion(p_afnd);
 
 	afd  = AFNDTransforma(p_afnd);
-	AFNDImprime(stdout,p_afnd);
+	AFNDImprime(stdout,afd);
 	AFNDADot(p_afnd);
 
 	AFNDElimina(afd);
