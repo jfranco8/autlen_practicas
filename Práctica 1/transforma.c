@@ -407,7 +407,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   //para cada estado que tenemos en creados: ---> !! he comparado i < num_estados porque es lo unico que me cuadra pero igual lo que tneemos
   // que hacer es para cada estado del afnd ??? no se nuestro algoritmo no es asi pero ESTO HAY QUE OENSARLO
-  while(creados[i]){
+  while(creados[i] != NULL){
 
     printf("////////////////////////////////Iteracion %d\n", i);
     printf("////////////////////////////////Iteracion %d\n", i);
@@ -591,8 +591,13 @@ AFND* AFNDTransforma(AFND* afnd){
 
   printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<--------\n");
   //Creamos el autómata determinista para poder dibujarlo
-  contador = i+1;
-  printf("contador: %d\n", j);
+  // contador = i+1;
+  contador = 0;
+  while(creados[contador]){
+    contador++;
+  }
+  // contador++;
+  printf("contador: %d\n", contador);
   determinista = AFNDNuevo("afd", contador, num_simbolos);
 
   // Insertamos los símbolos en el nuevo autómata
