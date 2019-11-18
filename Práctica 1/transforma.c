@@ -218,34 +218,34 @@ void eliminar_intermedia(Intermedia *intermedia) {
 *   -1 en caso de error
 */
 
-int comparar_codificacion(int *codificacion1, int *codificacion2){
+int comparar_codificacion(int *codificacion1, int *codificacion2, int num_estados){
   if(!codificacion1 || !codificacion2){
     return -1;
   }
 
   int i;
   printf("codificacion 1:\n" );
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < num_estados; i++) {
     printf("%d-\n", codificacion1[i] );
   }
 
   printf("codificacion 2:\n" );
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < num_estados; i++) {
     printf("%d-\n", codificacion2[i] );
   }
-  int len1, len2;
+  // int len1, len2;
 
-  // calculamos las longitudes de los dos arrays.
-  len1 = sizeof(len1)/sizeof(int);
-  len2 = sizeof(len2)/sizeof(int);
+  // // calculamos las longitudes de los dos arrays.
+  // len1 = sizeof(codificacion1)/sizeof(int);
+  // len2 = sizeof(codificacion2)/sizeof(int);
 
   // si las longitudes son distintas NO pueden ser los mismos estado, ya que
   // no forman parte del mismo AF
-  if (len1 != len2){
-    return -1;
-  }
+  // if (len1 != len2){
+  //   return -1;
+  // }
 
-  for (i=0; i<len1; i++){
+  for (i=0; i<num_estados; i++){
     if(codificacion1[i] != codificacion2[i]){
       return 0;
     }
@@ -267,20 +267,21 @@ int comparar_codificacion(int *codificacion1, int *codificacion2){
 *   -1 en caso de error
 */
 
-int is_estado_in(int *codificacion, Intermedia **creados) {
-  int i, num_creados;
+int is_estado_in(int *codificacion, Intermedia **creados, int num_estados, int num_creados) {
+  int i;
 
   if(!codificacion  || !creados){
     return -1;
   }
 
+  num_creados = num_creados + 1;
 
-  num_creados = sizeof(creados)/sizeof(Intermedia*);
+  // num_creados = sizeof(creados)/sizeof(Intermedia*);
   printf("!!!!!!!! DENTRO IS ESTADO IN !!!! \n num_creados: %d\n",num_creados );
   for (i = 0; i < num_creados; i++) {
     // Vemos si la codificacion dada coincide con alguna de las que ya tenemos
     // en creados. Si coincide, devolvemos un 1
-    if (comparar_codificacion(codificacion, creados[i]->i_codificacion) == 1){
+    if (comparar_codificacion(codificacion, creados[i]->i_codificacion, num_estados) == 1){
       return 1;
     }
   }
@@ -406,7 +407,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   //para cada estado que tenemos en creados: ---> !! he comparado i < num_estados porque es lo unico que me cuadra pero igual lo que tneemos
   // que hacer es para cada estado del afnd ??? no se nuestro algoritmo no es asi pero ESTO HAY QUE OENSARLO
-  while(creados[i]){
+  while(creados[i+1]){
 
     printf("////////////////////////////////Iteracion %d\n", i);
     printf("////////////////////////////////Iteracion %d\n", i);
@@ -415,15 +416,26 @@ AFND* AFNDTransforma(AFND* afnd){
     cont_transiciones = 0;
     estado_actual = creados[i];
     printf("++++++Imprimiendo creados[i]\n" );
+    if (i == 3){
+      if (!creados[i+1]) {
+        printf("NO HAY 3 kikikikikiikikikikikikikikikik\n" );
+      }
+
+      else {
+        printf("SI HAY tikitikitikitikitkikikikikikiiki\n");
+      }
+    }
     imprimir_intermedia(creados[i], num_estados);
 
 
     //ahora queremos para cada simbolo --> tenemos el numero de simbolos
     for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
+      
 
       //digo yo que tendremos alguna funcion que me diga a que estados voy con ese simbolo desde el actual ??? --> creo que si que la hay
       // lo que tengo que hacer es coger el simbolo del alfabeto
       strcpy(simbolo, AFNDSimboloEn(afnd, i_simbolo)); //ya tenemos el primer simbolo
+      printf("$$$$$$$ PARA EL SIMBOLO %s $$$$$$\n", simbolo);
 
       //para cada sub estado del estado actual: Con subestado nos queremos referir a que si el estado actual es q0q1 tenemos el estado incial
       flag_hay_transiciones = 0;
@@ -434,20 +446,28 @@ AFND* AFNDTransforma(AFND* afnd){
 
       for(i_subestado = 0; i_subestado < num_estados; i_subestado++) {
 
+
+        
         //comprobamos que subestado estamos trabajando mirando en la cadena [0,0,0,0,0,0] que posiciones estan a 1, si esta a 1 --> tenemos un subestado
 
 
         if (creados[i]->i_codificacion[i_subestado] == 1) {
+          printf("TTTTTTTTTTTTTT PARA CADA SUB ESTADO TTTTTTTTTTTTT  %d\n", i_subestado);
           //si estamos en un subestado tenemos que mirar a donde podemos ir
           //sabemos que el estado actual YA ES EN SI EL INICIAL --> en i_subestado tengo la posicion que soy: es decir si soy q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
           //con lo cual aqui ya tenemos la informacion necesaria y suficiente: - tenemos el indice del simbolo: i_simbolo
           //                                                                   - tenemos el indice de cada subestado i_subestado --> origen
           //                                                                   - tenemos el indice de los destinos --> i_cada_estado_AFND --> destino
           //ahora tengo que mirar para cada estado del AFND si hay transicion --> la funcion me devuelve 1 si la hay
-          strcpy(nombre_nuevo_estado, "");
+          if (flag_hay_transiciones != 1) {
+            strcpy(nombre_nuevo_estado, "");
+          }
+
+          printf(" --> antes de empezar a mirar si hay transiciones o no: %s\n", nombre_nuevo_estado);
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND ++) {
             if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i_subestado, i_simbolo, i_cada_estado_AFND) == 1) {
               flag_hay_transiciones = 1;
+              printf("Hay transiciones <<<<<<<<<<<<<<<\n");
               // printf("%d\n", i_cada_estado_AFND);
               //es decir, si existe transicion --> tenemos que ponerlo de alguna manera
 
@@ -459,6 +479,7 @@ AFND* AFNDTransforma(AFND* afnd){
               strcat(nombre_nuevo_estado, "q");
               sprintf(str, "%d", i_cada_estado_AFND);
               strcat(nombre_nuevo_estado, str);
+              printf("nomre_nuevo_estado: %s", nombre_nuevo_estado);
               nuevo_estado[i_cada_estado_AFND] = 1; // lo marcamos así?
               if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
                 flag_estado_final = 2;
@@ -494,9 +515,8 @@ AFND* AFNDTransforma(AFND* afnd){
               printf("%d-",nuevo_estado[aux] );
             }
 
-            printf("\n");
-
-            check = is_estado_in(nuevo_estado, creados);
+            printf("\n ANTES DE IS ESTADO IN !!!!!!!!!!! %d", j);
+            check = is_estado_in(nuevo_estado, creados, num_estados, j);
             printf("CHECK = %d\n", check);
             if (check == 0) { //igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta
               printf("Dentro del check. No esta en creados\n" );
@@ -524,12 +544,10 @@ AFND* AFNDTransforma(AFND* afnd){
               while(creados[j]){
                 j++;
               }
-              printf("Cuantos tengo añadidos en creados j = %d\n", j);
+              printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", j);
+              printf("tam_creados: %zu", tam_creados);
               creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *));
               creados[j] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
-
-              printf("????????? CREADOS DE 1 \n" );
-              imprimir_intermedia(creados[1], num_estados);
 
               // creados[i+1] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
               // memcpy(creados[i+1], inter_nuevo_estado, sizeof(Intermedia *));
@@ -570,6 +588,8 @@ AFND* AFNDTransforma(AFND* afnd){
     i++;
   } //fin del primer while grande
 
+
+  printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<--------");
   //Creamos el autómata determinista para poder dibujarlo
   contador = i+1;
   determinista = AFNDNuevo("afd", contador, num_simbolos);
