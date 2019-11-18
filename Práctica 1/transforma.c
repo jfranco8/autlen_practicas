@@ -542,16 +542,16 @@ AFND* AFNDTransforma(AFND* afnd){
 
 
               tam_creados = sizeof(creados);
-              // j = 0;
-              // while(creados[j]){
-              //   j++;
-              // }
+              j = 0;
+              while(creados[j]){
+                j++;
+              }
               printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", num_estados_creados);
               // printf("tam_creados: %zu", tam_creados);
               // creados = (Intermedia **)realloc(creados, tam_creados);
               creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8);
-              creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
-              num_estados_creados++;
+              creados[j] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
+              // num_estados_creados++;
 
               // creados[i+1] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
               // memcpy(creados[i+1], inter_nuevo_estado, sizeof(Intermedia *));
