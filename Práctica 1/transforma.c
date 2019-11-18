@@ -345,7 +345,7 @@ AFND* AFNDTransforma(AFND* afnd){
   // TENGO UN LIO CON LOS PUNTEROS DE LAS COSAS ESTAS
   // le he puesto MAX NOMBRE PARA QUE NO ME DIERA ERROR PORQUE SI NO AL HACER creados[contador] = inicial; ME DA ERROR AL ASIGNAR VARIABLES
   Intermedia *inicial, *estado_actual; //creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd
-  Intermedia **creados, *expandidos[MAX_NOMBRE];
+  Intermedia **creados = NULL, *expandidos[MAX_NOMBRE];
   int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0;
   int pos_inicial, cont_transiciones, k, flag_estado_final = 0, j = 0;
   char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE];
@@ -364,6 +364,7 @@ AFND* AFNDTransforma(AFND* afnd){
   //contador es para saber donde tengo que añadir luego a la lista de creados
   //contador_expandidos es para saber donde tengo que añadir luego en la lista de expandidos
   int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos = 0;
+  int num_estados_creados = 1;
 
   //obtenemos datos del automata original
   num_estados = AFNDNumEstados(afnd);
@@ -398,8 +399,9 @@ AFND* AFNDTransforma(AFND* afnd){
   //lo hago aqui cuando ya he creado la estructura intermedia
   imprimir_intermedia(inicial, num_estados);
 
-  creados = (Intermedia **)malloc(sizeof(Intermedia *));
+  creados = (Intermedia **)malloc(sizeof(Intermedia *)+8);
   creados[0] = (Intermedia *)malloc(sizeof(Intermedia));
+  creados[1] = NULL;
 
   creados[contador] = inicial;
   contador ++;
@@ -407,7 +409,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   //para cada estado que tenemos en creados: ---> !! he comparado i < num_estados porque es lo unico que me cuadra pero igual lo que tneemos
   // que hacer es para cada estado del afnd ??? no se nuestro algoritmo no es asi pero ESTO HAY QUE OENSARLO
-  while(creados[i] != NULL){
+  while(creados[i] != NULL || i == 0){
 
     printf("////////////////////////////////Iteracion %d\n", i);
     printf("////////////////////////////////Iteracion %d\n", i);
@@ -430,7 +432,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
     //ahora queremos para cada simbolo --> tenemos el numero de simbolos
     for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
-      
+
 
       //digo yo que tendremos alguna funcion que me diga a que estados voy con ese simbolo desde el actual ??? --> creo que si que la hay
       // lo que tengo que hacer es coger el simbolo del alfabeto
@@ -447,7 +449,7 @@ AFND* AFNDTransforma(AFND* afnd){
       for(i_subestado = 0; i_subestado < num_estados; i_subestado++) {
 
 
-        
+
         //comprobamos que subestado estamos trabajando mirando en la cadena [0,0,0,0,0,0] que posiciones estan a 1, si esta a 1 --> tenemos un subestado
 
 
@@ -540,14 +542,16 @@ AFND* AFNDTransforma(AFND* afnd){
 
 
               tam_creados = sizeof(creados);
-              j = 0;
-              while(creados[j]){
-                j++;
-              }
-              printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", j);
-              printf("tam_creados: %zu", tam_creados);
-              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *));
-              creados[j] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
+              // j = 0;
+              // while(creados[j]){
+              //   j++;
+              // }
+              printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", num_estados_creados);
+              // printf("tam_creados: %zu", tam_creados);
+              // creados = (Intermedia **)realloc(creados, tam_creados);
+              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8);
+              creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
+              num_estados_creados++;
 
               // creados[i+1] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
               // memcpy(creados[i+1], inter_nuevo_estado, sizeof(Intermedia *));
@@ -589,13 +593,15 @@ AFND* AFNDTransforma(AFND* afnd){
   } //fin del primer while grande
 
 
-  printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<--------\n");
+  printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<-------- VALOR DE LA i = %d\n", i);
   //Creamos el autómata determinista para poder dibujarlo
-  // contador = i+1;
-  contador = 0;
-  while(creados[contador]){
-    contador++;
-  }
+  // eliminar_intermedia(creados[i]);
+  free(creados[i]);
+  // contador = 0;
+  // while(creados[contador]){
+  //   contador++;
+  // }
+  contador = i;
   // contador++;
   printf("contador: %d\n", contador);
   determinista = AFNDNuevo("afd", contador, num_simbolos);
@@ -614,7 +620,7 @@ AFND* AFNDTransforma(AFND* afnd){
   // AFNDInsertaTransicion(p_afnd, "q0", "+", "q1");
   for (i=0; i<contador; i++){
     k = 0;
-    while(creados[i]->transiciones[k]){
+    while(creados[i]->transiciones[k] != NULL){
       AFNDInsertaTransicion(determinista,
                             creados[i]->nombre_estado,
                             creados[i]->transiciones[k]->simbolo,
