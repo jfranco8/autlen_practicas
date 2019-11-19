@@ -6,15 +6,10 @@
 #include <string.h>
 
 #include "afnd.h"
+#include "intermedia.h"
 
-#define MAX_NOMBRE 500
-#define MAX_TRANSICIONES 500
-
-
-typedef struct  _intermedia intermedia;
-typedef struct _nuevo_estado nuevo_estado;
-typedef struct _transicion transicion;
-
+/*#define MAX_NOMBRE 500
+#define MAX_TRANSICIONES 500*/
 
 AFND* AFNDTransforma(AFND* afnd);
 
