@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g
+CFLAGS = -g -Wall -ansi -pedantic
 OBJ = *.o
 
 all: pr_afnd
