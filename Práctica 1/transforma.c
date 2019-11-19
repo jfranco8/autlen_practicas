@@ -331,6 +331,17 @@ void copiar_transicion(Transicion * transicion1, Transicion *transicion2, int nu
   }
 }
 
+void imprimir_codificiacion(int *cod, int num_estados) {
+  int i;
+
+  printf("????? imprimiendo codificacion ?????\n");
+
+  for(i = 0; i < num_estados; i++) {
+    printf ("%d-", cod[i]);
+  }
+
+  printf("\n");
+}
 /*
 * Funcion que sirve para encontrar transiciones lambda recursivamente
 *
@@ -338,12 +349,18 @@ void copiar_transicion(Transicion * transicion1, Transicion *transicion2, int nu
 void encuentra_lambdas_recursiva(AFND *afnd, int i_cada_estado_AFND, int *cod, char *nombre, int num_estados) {
   int i_proximos_estados;
   char str[MAX_NOMBRE];
+
+  /* Tenemos que mirar entre todos los estados siguientes */
   for (i_proximos_estados = 0; i_proximos_estados < num_estados; i_proximos_estados++){
     if(AFNDCierreLTransicionIJ(afnd, i_cada_estado_AFND, i_proximos_estados) == 1){
+      printf("............###### HAY TRANSICION LAMBDA DE %d a %d #######........\n", i_cada_estado_AFND, i_proximos_estados);
+      imprimir_codificiacion(cod, num_estados);
       cod[i_proximos_estados] = 1;
+      imprimir_codificiacion(cod, num_estados);
       strcat(nombre,"q");
       sprintf(str, "%d", i_proximos_estados);
       strcat(nombre,str);
+      printf("........... imprimiendo el nombre despues de cambiarlo en las lambdas = %s ......", nombre);
       encuentra_lambdas_recursiva(afnd, i_proximos_estados, cod, nombre, num_estados);
     }
   }
@@ -418,7 +435,7 @@ AFND* AFNDTransforma(AFND* afnd){
   //tenemos que hacer un bucle que recorra todos los estados del AFND --> para ello tenemos una variable i_cada_estado_AFND
   for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
     if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1) {
-      printf(" ===== HAY TRANSICION LAMDA DE %d A %d", pos_inicial, i_cada_estado_AFND);
+      printf(" ===== HAY TRANSICION LAMDA DE %d A %d ==========\n", pos_inicial, i_cada_estado_AFND);
       /* Aqui tenemos que llamar a la funcion recursiva */
       /* Si se puede ir con transiciones lambda lo indicamos en la codificacion y en el nombre*/
       strcat(nombre_inicial, "q");
@@ -514,18 +531,31 @@ AFND* AFNDTransforma(AFND* afnd){
               strcat(nombre_nuevo_estado, "q");
               sprintf(str, "%d", i_cada_estado_AFND);
               strcat(nombre_nuevo_estado, str);
-              printf("nomre_nuevo_estado: %s\n ççççççççççççççççççççç+++++++++++++", nombre_nuevo_estado);
+              printf("nomre_nuevo_estado: %s ççççççççççççççççççççç+++++++++++++\n", nombre_nuevo_estado);
               nuevo_estado[i_cada_estado_AFND] = 1;
 
               /* Aqui cuando estamos mirando las transiciones para los estados y estamos guardando en nuevo estado el la codificacion
               del estado destino, tenemos que comprobar si estos destinos pueden ir a otro sitio con lambda */
 
-              printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === ");
-              encuentra_lambdas_recursiva(afnd, i_cada_estado_AFND, nuevo_estado, nombre_nuevo_estado, num_estados);
+              // printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === \n");
+              // encuentra_lambdas_recursiva(afnd, i_cada_estado_AFND, nuevo_estado, nombre_nuevo_estado, num_estados);
 
               if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
                 flag_estado_final = 2;
               }
+            }
+          }
+        }
+      }
+
+      for (i_subestado = 0; i_subestado < num_estados; i_subestado++) {
+        if(nuevo_estado[i_subestado] == 1) { //para los estados a los que podemos ir, miramos las lambdas
+          for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
+            if (AFNDCierreLTransicionIJ(afnd, i_subestado, i_cada_estado_AFND) == 1) {
+              printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === \n");
+              
+              nuevo_estado[i_cada_estado_AFND] = 1;
+              imprimir_codificiacion(nuevo_estado, num_estados);
             }
           }
         }
