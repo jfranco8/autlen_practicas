@@ -88,7 +88,7 @@ AFND* AFNDTransforma(AFND* afnd){
   int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND;
   int num_estados_creados = 1;
   int *nuevo_estado;
-  int *codificacion_inicial;
+  int *codificacion_inicial, g;
 
   /* obtenemos datos del automata original*/
   num_estados = AFNDNumEstados(afnd);
@@ -225,11 +225,11 @@ AFND* AFNDTransforma(AFND* afnd){
               printf("Hay transiciones <<<<<<<<<<<<<<<\n");
 
               if(nuevo_estado[i_cada_estado_AFND] == 0){
-                strcpy(str, "");
+                /*strcpy(str, "");
                 strcat(nombre_nuevo_estado, "q");
                 sprintf(str, "%d", i_cada_estado_AFND);
                 strcat(nombre_nuevo_estado, str);
-                printf("nomre_nuevo_estado: %s ççççççççççççççççççççç+++++++++++++\n", nombre_nuevo_estado);
+                printf("nomre_nuevo_estado: %s ççççççççççççççççççççç+++++++++++++\n", nombre_nuevo_estado);*/
                 nuevo_estado[i_cada_estado_AFND] = 1;
               }
 
@@ -262,9 +262,9 @@ AFND* AFNDTransforma(AFND* afnd){
               if (AFNDCierreLTransicionIJ(afnd, i_subestado, i_cada_estado_AFND) == 1 && i_subestado != i_cada_estado_AFND) {
                 printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === \n");
                 if (nuevo_estado[i_cada_estado_AFND] == 0) {
-                strcat(nombre_nuevo_estado, "q");
+                /*strcat(nombre_nuevo_estado, "q");
                 sprintf(str, "%d", i_cada_estado_AFND);
-                strcat(nombre_nuevo_estado, str);
+                strcat(nombre_nuevo_estado, str);*/
                 nuevo_estado[i_cada_estado_AFND] = 1;
                 imprimir_codificiacion(nuevo_estado, num_estados);
 
@@ -295,6 +295,14 @@ AFND* AFNDTransforma(AFND* afnd){
       }
 
           if(flag_hay_transiciones == 1){
+            strcpy(nombre_nuevo_estado, "");
+            for(g=0; g<num_estados; g++){
+              if(nuevo_estado[g] == 1){
+                strcat(nombre_nuevo_estado, "q");
+                sprintf(str, "%d", g);
+                strcat(nombre_nuevo_estado, str);
+              }
+            }
             /* TRANSICION */
             /* creados[i]->transiciones[cont_transiciones] = (Transicion *)malloc(sizeof(Transicion)); */
             /* creados[i]->transiciones[cont_transiciones] = crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado);*/
@@ -333,7 +341,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
               printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", num_estados_creados);
 
-              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8*num_estados_creados);
+              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+(8*num_estados_creados));
               creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
               tipo_estado_nuevo = NORMAL;
               num_estados_creados++;
@@ -341,6 +349,8 @@ AFND* AFNDTransforma(AFND* afnd){
               printf("Voy a imprimir el ultimo que meto en creados\n");
               imprimir_intermedia(creados[num_estados_creados-1], num_estados);
             }
+          } else {
+            set_intermedia_transicion(creados[i], cont_transiciones, NULL);
           }
     }
     i++;
@@ -350,7 +360,8 @@ AFND* AFNDTransforma(AFND* afnd){
   printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<-------- VALOR DE LA i = %d\n", i);
   /* Creamos el autómata determinista para poder dibujarlo */
 
-  free(creados[i]);
+  /*free(creados[i]);*/
+  creados[i]=NULL;
   free(nuevo_estado);
   free(codificacion_inicial);
   contador = i;
@@ -384,12 +395,14 @@ AFND* AFNDTransforma(AFND* afnd){
     }
   }
 
+  free(creados[i]);
   for ( i = 0; i < contador; i++) {
     k = 0;
     while(get_intermedia_transicion(creados[i], k)  != NULL){
       eliminar_transicion(get_intermedia_transicion(creados[i],k));
       k++;
     }
+    printf("se para en la transicion %d de la intermedia %d\n", k, i);
 
     eliminar_intermedia(creados[i]);
   }

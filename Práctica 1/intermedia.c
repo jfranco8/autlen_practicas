@@ -372,7 +372,7 @@ int *get_intermedia_codificacion(Intermedia *intermedia) {
  *
  */
 void set_intermedia_transicion(Intermedia *intermedia, int posicion, Transicion *transicion) {
-  if (!intermedia || !transicion) {
+  if (!intermedia) {
       printf ("Error en los argumentos de entrada de set_intermedia_transicion\n");
   }
   intermedia->transiciones[posicion] = transicion;
