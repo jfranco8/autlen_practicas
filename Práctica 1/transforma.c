@@ -330,6 +330,24 @@ void copiar_transicion(Transicion * transicion1, Transicion *transicion2, int nu
     transicion1->t_codificacion[i] = transicion2->t_codificacion[i];
   }
 }
+
+/*
+* Funcion que sirve para encontrar transiciones lambda recursivamente
+*
+*/
+void encuentra_lambdas_recursiva(AFND *afnd, int i_cada_estado_AFND, int *cod, char *nombre, int num_estados) {
+  int i_proximos_estados;
+  char str[MAX_NOMBRE];
+  for (i_proximos_estados = 0; i_proximos_estados < num_estados; i_proximos_estados++){
+    if(AFNDCierreLTransicionIJ(afnd, i_cada_estado_AFND, i_proximos_estados) == 1){
+      cod[i_proximos_estados] = 1;
+      strcat(nombre,"q");
+      sprintf(str, "%d", i_proximos_estados);
+      strcat(nombre,str);
+      encuentra_lambdas_recursiva(afnd, i_proximos_estados, cod, nombre, num_estados);
+    }
+  }
+}
 /*
 * AFNDTransforma
 *
@@ -394,7 +412,22 @@ AFND* AFNDTransforma(AFND* afnd){
     }
   }
 
-  // COMPROBAR LAMBDAS ANTES
+  /* COMPROBANDO LAS LAMBDAS DEL ESTADO INICIAL */
+  //esto esta mal porque hay que hacerlo de manera recursiva ya que tenemos que volver a comprobar para cada i_cada_estado_AFND si hay de nuevo transiciones lambda
+
+  //tenemos que hacer un bucle que recorra todos los estados del AFND --> para ello tenemos una variable i_cada_estado_AFND
+  for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
+    if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1) {
+      printf(" ===== HAY TRANSICION LAMDA DE %d A %d", pos_inicial, i_cada_estado_AFND);
+      /* Aqui tenemos que llamar a la funcion recursiva */
+      /* Si se puede ir con transiciones lambda lo indicamos en la codificacion y en el nombre*/
+      strcat(nombre_inicial, "q");
+      sprintf(str, "%d", i_cada_estado_AFND);
+      strcat(nombre_inicial,str);
+      codificacion_inicial[i_cada_estado_AFND] = 1;
+      encuentra_lambdas_recursiva(afnd, i_cada_estado_AFND, codificacion_inicial, nombre_inicial, num_estados);
+    }
+  }
   inicial = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial); //a esta funcion se le pasa el tipo pero no se si es necesario --> LE HE PASADO POS_INICIAL PARA QUE NP ME SALGA ERROR TODO EL RATO PERO HAY QUE CAMBIARLO
   //lo hago aqui cuando ya he creado la estructura intermedia
   imprimir_intermedia(inicial, num_estados);
@@ -481,8 +514,15 @@ AFND* AFNDTransforma(AFND* afnd){
               strcat(nombre_nuevo_estado, "q");
               sprintf(str, "%d", i_cada_estado_AFND);
               strcat(nombre_nuevo_estado, str);
-              printf("nomre_nuevo_estado: %s", nombre_nuevo_estado);
-              nuevo_estado[i_cada_estado_AFND] = 1; // lo marcamos así?
+              printf("nomre_nuevo_estado: %s\n ççççççççççççççççççççç+++++++++++++", nombre_nuevo_estado);
+              nuevo_estado[i_cada_estado_AFND] = 1;
+
+              /* Aqui cuando estamos mirando las transiciones para los estados y estamos guardando en nuevo estado el la codificacion
+              del estado destino, tenemos que comprobar si estos destinos pueden ir a otro sitio con lambda */
+
+              printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === ");
+              encuentra_lambdas_recursiva(afnd, i_cada_estado_AFND, nuevo_estado, nombre_nuevo_estado, num_estados);
+
               if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
                 flag_estado_final = 2;
               }
