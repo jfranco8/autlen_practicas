@@ -1,18 +1,56 @@
 /**
  * Autores: Sofia Sanchez y Jesus Daniel Franco
  * Fichero: intermedia.h
- * 
- * Contiene las funciones 
- * 
+ *
+ * Contiene las funciones
+ *
  */
 
 #include "transforma.h"
+
+int get_tipo_estado(AFND *afnd, int posicion, int tipo_antes){
+  if(tipo_antes==INICIAL) {
+    if(AFNDTipoEstadoEn(afnd, posicion) == INICIAL){
+      return INICIAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == FINAL){
+      return INICIAL_Y_FINAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == INICIAL_Y_FINAL){
+      return INICIAL_Y_FINAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == NORMAL){
+      return INICIAL;
+    }
+  }
+  if(tipo_antes==FINAL) {
+    if(AFNDTipoEstadoEn(afnd, posicion) == INICIAL){
+      return INICIAL_Y_FINAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == FINAL){
+      return FINAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == INICIAL_Y_FINAL){
+      return INICIAL_Y_FINAL;
+    }
+    if(AFNDTipoEstadoEn(afnd, posicion) == NORMAL){
+      return FINAL;
+    }
+  }
+  if(tipo_antes==INICIAL_Y_FINAL) {
+    return INICIAL_Y_FINAL;
+  }
+  /*Si la posicion anterior era normal, se queda con la que viene*/
+  return AFNDTipoEstadoEn(afnd, posicion);
+}
+
+
 
 /**
  * AFNDTransforma
  *
  * Transforma un AFND en un AFD equivalente
- * 
+ *
  * Argumentos de entrada:
  *  - afnd: Automata no determinista que vamos a transformar
  *
@@ -27,10 +65,11 @@ AFND* AFNDTransforma(AFND* afnd){
   AFND *determinista;
   size_t tam_creados;
 
-  int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0, aux;
-  int pos_inicial, cont_transiciones, k, flag_estado_final = 0;
+  int num_estados, num_simbolos, check, tipo_estado_nuevo = NORMAL, flag_hay_transiciones = 0, aux;
+  int pos_inicial, cont_transiciones, k;
+  int flag_estado_final = 0;
 
-  /* 
+  /*
   nombre_inicial sirve para guardar el nombre del estado inicial
   simbolo sirve para guardar la cadena de caracteres para el simbolo de una transicion
   nombre_nuevo_estado lo utlilizamos para guardar el nombre del nuevo estado que se ha generado con las transiciones
@@ -58,7 +97,7 @@ AFND* AFNDTransforma(AFND* afnd){
   nuevo_estado = (int*)malloc(sizeof(int)*num_estados);
   codificacion_inicial = (int*)malloc(sizeof(int)*num_estados);
 
-  
+
   /* obtenemos el estado inicial.
   Lo que recibimos es la posicion del estado inicial*/
   pos_inicial = AFNDIndiceEstadoInicial(afnd);
@@ -67,7 +106,7 @@ AFND* AFNDTransforma(AFND* afnd){
   obtenemos el nombre del estado incial*/
   strcpy(nombre_inicial, AFNDNombreEstadoEn(afnd, pos_inicial));
 
-  
+
   for (k=0; k<num_estados; k++){
     nuevo_estado[k] = 0;
   }
@@ -91,17 +130,50 @@ AFND* AFNDTransforma(AFND* afnd){
       sprintf(str, "%d", i_cada_estado_AFND);
       strcat(nombre_inicial,str);
       codificacion_inicial[i_cada_estado_AFND] = 1;
+
+      flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
+      printf("ººººººººººººººººº el que llega es %d y el que viene en pos %d es %d", tipo_estado_nuevo, i_cada_estado_AFND, AFNDTipoEstadoEn(afnd, i_cada_estado_AFND));
+      tipo_estado_nuevo = flag_estado_final;
+    } else {
+      if(pos_inicial == i_cada_estado_AFND){
+        tipo_estado_nuevo = INICIAL;
+      }
     }
+
+    /*if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL && flag_estado_final!=0){
+      flag_estado_final = 2;
+      printf("---> TENEMOS UN ESTADO FINAL lambas %s <<<<----", nombre_nuevo_estado);
+    }
+    if (AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL ||
+        (AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL  && flag_estado_final == 2)){
+      flag_estado_final = 3;
+      printf("---> TENEMOS UN ESTADO INICIAL Y FINAL lambas %s <<<<----", nombre_nuevo_estado);
+    }*/
+
+
+
   }
- 
+
+  /*if (flag_estado_final == 2){
+    tipo_estado_nuevo = FINAL;
+  } else {
+    if (flag_estado_final == 3){
+      tipo_estado_nuevo = INICIAL_Y_FINAL;
+    } else {
+    tipo_estado_nuevo = NORMAL;
+    }
+  }*/
+
+
 
   creados = (Intermedia **)malloc(sizeof(Intermedia *)+8);
-  creados[0] = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial);
+  creados[0] = crear_intermedia(nombre_inicial, num_estados, tipo_estado_nuevo, codificacion_inicial);
+  tipo_estado_nuevo = NORMAL;
   creados[1] = NULL;
   i = contador;
   contador ++;
 
-  
+
   while(creados[i] != NULL || i == 0){
 
     printf("////////////////////////////////Iteracion %d\n", i);
@@ -109,7 +181,7 @@ AFND* AFNDTransforma(AFND* afnd){
     printf("////////////////////////////////Iteracion %d\n", i);
 
     cont_transiciones = 0;
-    
+
     printf("++++++Imprimiendo creados[i]\n" );
     if (i == 3){
       if (!creados[i+1]) {
@@ -161,12 +233,26 @@ AFND* AFNDTransforma(AFND* afnd){
                 nuevo_estado[i_cada_estado_AFND] = 1;
               }
 
-              if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
+              /*if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL  && flag_estado_final == 0){
                 flag_estado_final = 2;
                 printf("---> TENEMOS UN ESTADO FINAL %s <<<<----", nombre_nuevo_estado);
               }
+              if (AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL ||
+                  AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL  && flag_estado_final == 2){
+                flag_estado_final = 3;
+                printf("---> TENEMOS UN ESTADO INICIAL Y FINAL %s <<<<----", nombre_nuevo_estado);
+              }*/
+              flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
+              tipo_estado_nuevo = flag_estado_final;
+              if(tipo_estado_nuevo == INICIAL_Y_FINAL){
+                tipo_estado_nuevo = FINAL;
+              } else {
+                if(tipo_estado_nuevo == INICIAL){
+                  tipo_estado_nuevo = NORMAL;
+                }
+              }
             }
-          }
+            }
           }
         }
 
@@ -185,9 +271,23 @@ AFND* AFNDTransforma(AFND* afnd){
               }
 
 
-              if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
+              /*if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL  && flag_estado_final == 0){
                 flag_estado_final = 2;
                 printf("---> TENEMOS UN ESTADO FINAL lambas %s <<<<----", nombre_nuevo_estado);
+              }
+              if (AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL ||
+                  AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL  && flag_estado_final == 2){
+                flag_estado_final = 3;
+                printf("---> TENEMOS UN ESTADO INICIAL Y FINAL lambas %s <<<<----", nombre_nuevo_estado);
+              }*/
+              flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
+              tipo_estado_nuevo = flag_estado_final;
+              if(tipo_estado_nuevo == INICIAL_Y_FINAL){
+                tipo_estado_nuevo = FINAL;
+              } else {
+                if(tipo_estado_nuevo == INICIAL){
+                  tipo_estado_nuevo = NORMAL;
+                }
               }
             }
           }
@@ -199,17 +299,17 @@ AFND* AFNDTransforma(AFND* afnd){
             /* creados[i]->transiciones[cont_transiciones] = (Transicion *)malloc(sizeof(Transicion)); */
             /* creados[i]->transiciones[cont_transiciones] = crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado);*/
             set_intermedia_transicion(creados[i], cont_transiciones, crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado));
-            
+
             printf("^^^^^^Imprimiendo transicion que añadimos a creados[i]\n" );
             imprimir_transicion(get_intermedia_transicion(creados[i], cont_transiciones), num_estados);
             cont_transiciones++;
-            
+
             /* creados[i]->transiciones[cont_transiciones] = NULL;*/
             set_intermedia_transicion(creados[i], cont_transiciones, NULL);
             /* EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
             PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo */
             printf("La codificacion que he probado es:\n" );
-            
+
             for (aux = 0; aux <num_estados;aux++){
               printf("%d-",nuevo_estado[aux] );
             }
@@ -219,18 +319,23 @@ AFND* AFNDTransforma(AFND* afnd){
             printf("CHECK = %d\n", check);
             if (check == 0) { /* igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta */
               printf("Dentro del check. No esta en creados\n" );
-              if (flag_estado_final == 2){
+              /*if (flag_estado_final == 2){
                 tipo_estado_nuevo = FINAL;
               } else {
+                if (flag_estado_final == 3){
+                  tipo_estado_nuevo = INICIAL_Y_FINAL;
+                } else {
                 tipo_estado_nuevo = NORMAL;
+                }
               }
-              flag_estado_final = 0;
+              flag_estado_final = 0;*/
               tam_creados = sizeof(creados);
 
               printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", num_estados_creados);
 
               creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8*num_estados_creados);
               creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
+              tipo_estado_nuevo = NORMAL;
               num_estados_creados++;
               creados[num_estados_creados] = NULL;
               printf("Voy a imprimir el ultimo que meto en creados\n");
@@ -244,7 +349,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<-------- VALOR DE LA i = %d\n", i);
   /* Creamos el autómata determinista para poder dibujarlo */
-  
+
   free(creados[i]);
   free(nuevo_estado);
   free(codificacion_inicial);
@@ -252,7 +357,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   printf("contador: %d\n", contador);
 
-  
+
   determinista = AFNDNuevo("afd", contador, num_simbolos);
 
   /* Insertamos los símbolos en el nuevo autómata */
