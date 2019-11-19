@@ -1,6 +1,6 @@
 /**
  * Autores: Sofia Sanchez y Jesus Daniel Franco
- * Fichero: intermedia.h
+ * Fichero: intermedia.c
  * 
  * Contiene las funciones 
  * 

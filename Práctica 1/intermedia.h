@@ -1,3 +1,11 @@
+/**
+ * Autores: Sofia Sanchez y Jesus Daniel Franco
+ * Fichero: intermedia.h
+ * 
+ * Contiene las funciones 
+ * 
+ */
+
 #ifndef INTERMEDIA_H
 #define INTERMEDIA_H
 
