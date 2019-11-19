@@ -122,91 +122,6 @@ void eliminar_intermedia(Intermedia *intermedia) {
 }
 
 
-  /* ALGORITMO:
-  Cogemos el primero que hay en la lista de los creados.
-    Desde cada estado de los creados:
-      Para cada simbolo:
-        Para cada subestado:
-          Para cada estado posible si puedo ir con ese estado
-          Si puedo ir con lambda
-            se hace set de la lista [1,0,0,1]
-      Añadimos una nueva transicion
-      Lo añadimos a la lista de estados creados
-    Lo añadimos a la lista de estados expandidos
-
-
-
-
-
-   En creados añadimos el estado inicial
-   c = q0;
-   para q0:
-    Para cada simbolo: - 0:
-                        Para cada sub estado: en este caso solo tenemos q0.
-                        q0 -> q0 [1,0,0,0,0]
-                        q0 -> q1 [0,1,0,0,0]
-                        tenemos que crear un nuevo estado --> hacemos el or de estas dos: [1,1,0,0,0] tenemos q0q1
-                        Añadimos la transicion a ese estado: origen q0 destino q0q1
-                        Añadimos q0q1 a c
-
-                       - 1:
-                        Para cada sub estado: en este caso solo tenemos q0.
-                        q0 -> q0
-
-                        como ya tenemos un estado que se corresponde con q0 no creamos otro
-                        No añadimos transicion porque no hemosc creado
-                        No añadimos q0 a c (puesto que ya lo hemos visto)
-    Añadimos a expandidos
-  Para cada  q0q1 que es el siguiente que hay:
-    Para cada simbolo: - 0:
-                        Para cada sub estado:
-                          * q0: q0,q1-> q0q1[1,1,0,0,0]
-                          * q1: q1 -> x
-                          obtenemos que desde este solo podemos ir a el mismo
-                        - 1:
-                        Para cada sub estado:
-                          * q0: q0 -> q0
-                          * q1: q1 -> q2
-                          Tenemos que crear un uevo estado --Z hacemos el or de estas dos [1,0,1,0,0] tenemos q0q2
-                          Añadimos la transicion a ese estado: origen, es el mismo, es decir la estructura con la que estamos trabanando
-                          y el destino es q0q2 que lo acabamos de crear.
-                          Añadimos q0a2 a c
-    Añadimos a expandidos
-    Para cada q0q2: (no hemos incluido q0q1 porque ya lo hemos explorado)
-      Para cada simbolo: - 0:
-                        Para cada sub estado:
-                          * q0: q0,q1
-                          * q2: x
-                          Tenemos el estado q0q2 -> q0,q1 que no lo añadimos
-
-                         - 1:
-                         PAra cada sub estado:
-                         * q0: x
-                         * q2: x
-                         Como no se puede ir a nada y q0q2 ya lo tenemos en creados el algoritmo termina y ya lo tenemos todo pensado
-    Añadimos a lista de expandidos
-
-
-
-
-    !!!!!! DUDAS !!!!!!!
-   - para que queremos la lista expandidos ???
-   - la lista de creados esta bien -> es un array de no sabemos cuanto tamaño que contiene estructuras intermedias que es donde tenemos todas esas estructuras intermedias
-          - en la lista de creados tenemos todos los nuevos estados y estos nuevos estados tienen esta informacion:
-                * son ellos mismos el estado origen
-                * tienen un estado final
-                * tienen con que simbolo van a ir
-                (cosas a saber de la transicion)
-                * tienen su nombre
-                * tienen su codificacion para poder saber que estado es y si ya esta no lo creamos mas
-                * tienen si son de tipo final o de que tipo --> demomento no entiendo muy bien para que necesitamos esto
-                (cosas a saber del estado)
-
-    - seria util crear una funcion que compare si las codificaciones son iguales? no lo se -> pensarlo, auqnue creo que si puesto
-    que vamos a tener que ver si ya esta creado o no
-    */
-
-
 /*
 * COMPARAR_CODIFICACION
 *
@@ -219,11 +134,13 @@ void eliminar_intermedia(Intermedia *intermedia) {
 */
 
 int comparar_codificacion(int *codificacion1, int *codificacion2, int num_estados){
+  int i;
+  
   if(!codificacion1 || !codificacion2){
     return -1;
   }
 
-  int i;
+  
   printf("codificacion 1:\n" );
   for (i = 0; i < num_estados; i++) {
     printf("%d-\n", codificacion1[i] );
@@ -280,12 +197,17 @@ int is_estado_in(int *codificacion, Intermedia **creados, int num_estados, int n
   return 0;
 }
 
-
+/*
+*
+*
+*
+*/
 void imprimir_intermedia(Intermedia *intermedia, int num_estados) {
+  int i;
 
   printf("**********IMPRIMIENDO ESTRUCTURA INTERMEDIA********\n" );
   printf("nombre_estado: %s\n", intermedia->nombre_estado);
-  int i;
+  
   for (i = 0; i < num_estados; i++) {
     printf("%d-", intermedia->i_codificacion[i]);
   }
@@ -295,11 +217,20 @@ void imprimir_intermedia(Intermedia *intermedia, int num_estados) {
   printf("tipo: %d\n", intermedia->tipo);
 }
 
+
+/*
+*
+*
+*
+*/
+
 void imprimir_transicion(Transicion *transicion, int num_estados) {
+  int i;
+
   printf("**********IMPRIMIENDO TRANSICION********\n" );
   printf ("simbolo: %s\n", transicion->simbolo);
   printf("estado destino: %s\n", transicion->estado_final);
-  int i;
+  
   for (i = 0; i < num_estados; i++) {
     printf("%d-", transicion->t_codificacion[i]);
   }
@@ -307,15 +238,12 @@ void imprimir_transicion(Transicion *transicion, int num_estados) {
   printf("\n" );
 }
 
-void copiar_transicion(Transicion * transicion1, Transicion *transicion2, int num_estados){
-  int i;
-  strcpy(transicion1->estado_final, transicion2->estado_final);
-  strcpy(transicion1->simbolo, transicion2->simbolo);
-  for (i=0; i<num_estados; i++){
-    transicion1->t_codificacion[i] = transicion2->t_codificacion[i];
-  }
-}
 
+/*
+*
+*
+*
+*/
 void imprimir_codificiacion(int *cod, int num_estados) {
   int i;
 
@@ -327,29 +255,7 @@ void imprimir_codificiacion(int *cod, int num_estados) {
 
   printf("\n");
 }
-/*
-* Funcion que sirve para encontrar transiciones lambda recursivamente
-*
-*/
-void encuentra_lambdas_recursiva(AFND *afnd, int i_cada_estado_AFND, int *cod, char *nombre, int num_estados) {
-  int i_proximos_estados;
-  char str[MAX_NOMBRE];
 
-  /* Tenemos que mirar entre todos los estados siguientes */
-  for (i_proximos_estados = 0; i_proximos_estados < num_estados; i_proximos_estados++){
-    if(AFNDCierreLTransicionIJ(afnd, i_cada_estado_AFND, i_proximos_estados) == 1){
-      printf("............###### HAY TRANSICION LAMBDA DE %d a %d #######........\n", i_cada_estado_AFND, i_proximos_estados);
-      imprimir_codificiacion(cod, num_estados);
-      cod[i_proximos_estados] = 1;
-      imprimir_codificiacion(cod, num_estados);
-      strcat(nombre,"q");
-      sprintf(str, "%d", i_proximos_estados);
-      strcat(nombre,str);
-      printf("........... imprimiendo el nombre despues de cambiarlo en las lambdas = %s ......", nombre);
-      encuentra_lambdas_recursiva(afnd, i_proximos_estados, cod, nombre, num_estados);
-    }
-  }
-}
 /*
 * AFNDTransforma
 *
@@ -362,13 +268,11 @@ void encuentra_lambdas_recursiva(AFND *afnd, int i_cada_estado_AFND, int *cod, c
 
 AFND* AFNDTransforma(AFND* afnd){
 
-  Intermedia *inicial, *estado_actual; /*creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd*/
-  Intermedia **creados = NULL, *expandidos[MAX_NOMBRE];
-  int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0;
-  int pos_inicial, cont_transiciones, k, flag_estado_final = 0, j = 0;
+  /*Intermedia *inicial; creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd*/
+  Intermedia **creados = NULL;
+  int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0, aux;
+  int pos_inicial, cont_transiciones, k, flag_estado_final = 0;
   char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE];
-  Transicion *trans_nuevo_estado;
-  Intermedia *inter_nuevo_estado;
   char nombre_nuevo_estado[MAX_NOMBRE];
   char str[MAX_NOMBRE]; /*este sirve para pasar el nombre de cada subestado a cadena de caracteres y luego concatenar para poder hacer q0q1 */
   AFND *determinista;
@@ -381,13 +285,19 @@ AFND* AFNDTransforma(AFND* afnd){
   i_trans me dice por donde me he quedado en las transiciones de un nuevo estado
   contador es para saber donde tengo que añadir luego a la lista de creados
   contador_expandidos es para saber donde tengo que añadir luego en la lista de expandidos*/
-  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND, i_trans, contador_expandidos = 0;
+  int i,i_simbolo,i_subestado, contador = 0, i_cada_estado_AFND;
   int num_estados_creados = 1;
+  int *nuevo_estado;
+  int *codificacion_inicial;
 
   /* obtenemos datos del automata original*/
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
 
+  nuevo_estado = (int*)malloc(sizeof(int)*num_estados);
+  codificacion_inicial = (int*)malloc(sizeof(int)*num_estados);
+
+  
   /* obtenemos el estado inicial.
   Lo que recibimos es la posicion del estado inicial*/
   pos_inicial = AFNDIndiceEstadoInicial(afnd);
@@ -396,13 +306,13 @@ AFND* AFNDTransforma(AFND* afnd){
   obtenemos el nombre del estado incial*/
   strcpy(nombre_inicial, AFNDNombreEstadoEn(afnd, pos_inicial));
 
-  int nuevo_estado[num_estados];
+  
   for (k=0; k<num_estados; k++){
     nuevo_estado[k] = 0;
   }
 
   /* como soy el inicial y se que posicion tengo tendre que decirle a la i_codificacion que soy el [1,0,0,0,0] */
-  int codificacion_inicial[num_estados];
+  
   for (i=0; i<num_estados; i++){
     if(i == pos_inicial){
       codificacion_inicial[i] = 1;
@@ -423,19 +333,15 @@ AFND* AFNDTransforma(AFND* afnd){
       codificacion_inicial[i_cada_estado_AFND] = 1;
     }
   }
-  inicial = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial);
-  /* lo hago aqui cuando ya he creado la estructura intermedia*/
-  imprimir_intermedia(inicial, num_estados);
+ 
 
   creados = (Intermedia **)malloc(sizeof(Intermedia *)+8);
-  creados[0] = (Intermedia *)malloc(sizeof(Intermedia));
+  creados[0] = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial);
   creados[1] = NULL;
-
-  creados[contador] = inicial;
+  i = contador;
   contador ++;
-  i = contador-1;
 
-
+  
   while(creados[i] != NULL || i == 0){
 
     printf("////////////////////////////////Iteracion %d\n", i);
@@ -443,7 +349,7 @@ AFND* AFNDTransforma(AFND* afnd){
     printf("////////////////////////////////Iteracion %d\n", i);
 
     cont_transiciones = 0;
-    estado_actual = creados[i];
+    
     printf("++++++Imprimiendo creados[i]\n" );
     if (i == 3){
       if (!creados[i+1]) {
@@ -530,16 +436,16 @@ AFND* AFNDTransforma(AFND* afnd){
 
           if(flag_hay_transiciones == 1){
             /* TRANSICION */
-            creados[i]->transiciones[cont_transiciones] = (Transicion *)malloc(sizeof(Transicion));
+            /* creados[i]->transiciones[cont_transiciones] = (Transicion *)malloc(sizeof(Transicion)); */
             creados[i]->transiciones[cont_transiciones] = crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado);
             printf("^^^^^^Imprimiendo transicion que añadimos a creados[i]\n" );
             imprimir_transicion(creados[i]->transiciones[cont_transiciones], num_estados);
             cont_transiciones++;
-
+            creados[i]->transiciones[cont_transiciones] = NULL;
             /* EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
             PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo */
             printf("La codificacion que he probado es:\n" );
-            int aux;
+            
             for (aux = 0; aux <num_estados;aux++){
               printf("%d-",nuevo_estado[aux] );
             }
@@ -562,7 +468,7 @@ AFND* AFNDTransforma(AFND* afnd){
               creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8*num_estados_creados);
               creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
               num_estados_creados++;
-
+              creados[num_estados_creados] = NULL;
               printf("Voy a imprimir el ultimo que meto en creados\n");
               imprimir_intermedia(creados[num_estados_creados-1], num_estados);
             }
@@ -574,9 +480,10 @@ AFND* AFNDTransforma(AFND* afnd){
 
   printf(" ----->>>>>>>> EL ALGORITMO HA TERMINADO <<<<<<<<<<<-------- VALOR DE LA i = %d\n", i);
   /* Creamos el autómata determinista para poder dibujarlo */
-
+  
   free(creados[i]);
-
+  free(nuevo_estado);
+  free(codificacion_inicial);
   contador = i;
 
   printf("contador: %d\n", contador);
@@ -606,6 +513,17 @@ AFND* AFNDTransforma(AFND* afnd){
     }
   }
 
+  for ( i = 0; i < contador; i++) {
+    k = 0;
+    while(creados[i]->transiciones[k] != NULL){
+      eliminar_transicion(creados[i]->transiciones[k]);
+      k++;
+    }
+
+    eliminar_intermedia(creados[i]);
+  }
+
+  free(creados);
   return determinista;
 
 }
