@@ -434,7 +434,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
   //tenemos que hacer un bucle que recorra todos los estados del AFND --> para ello tenemos una variable i_cada_estado_AFND
   for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
-    if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1) {
+    if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1 && pos_inicial != i_cada_estado_AFND) {
       printf(" ===== HAY TRANSICION LAMDA DE %d A %d ==========\n", pos_inicial, i_cada_estado_AFND);
       /* Aqui tenemos que llamar a la funcion recursiva */
       /* Si se puede ir con transiciones lambda lo indicamos en la codificacion y en el nombre*/
@@ -442,7 +442,6 @@ AFND* AFNDTransforma(AFND* afnd){
       sprintf(str, "%d", i_cada_estado_AFND);
       strcat(nombre_inicial,str);
       codificacion_inicial[i_cada_estado_AFND] = 1;
-      encuentra_lambdas_recursiva(afnd, i_cada_estado_AFND, codificacion_inicial, nombre_inicial, num_estados);
     }
   }
   inicial = crear_intermedia(nombre_inicial, num_estados, INICIAL, codificacion_inicial); //a esta funcion se le pasa el tipo pero no se si es necesario --> LE HE PASADO POS_INICIAL PARA QUE NP ME SALGA ERROR TODO EL RATO PERO HAY QUE CAMBIARLO
@@ -527,12 +526,15 @@ AFND* AFNDTransforma(AFND* afnd){
               //esta lista podria ser la codificacion del nuevo estado?
               //tenemos que concatenar el nombre?
               //Hay otra manera mas sencilla de hacerlo?
-              strcpy(str, "");
-              strcat(nombre_nuevo_estado, "q");
-              sprintf(str, "%d", i_cada_estado_AFND);
-              strcat(nombre_nuevo_estado, str);
-              printf("nomre_nuevo_estado: %s ççççççççççççççççççççç+++++++++++++\n", nombre_nuevo_estado);
-              nuevo_estado[i_cada_estado_AFND] = 1;
+              if(nuevo_estado[i_cada_estado_AFND] == 0){
+                strcpy(str, "");
+                strcat(nombre_nuevo_estado, "q");
+                sprintf(str, "%d", i_cada_estado_AFND);
+                strcat(nombre_nuevo_estado, str);
+                printf("nomre_nuevo_estado: %s ççççççççççççççççççççç+++++++++++++\n", nombre_nuevo_estado);
+                nuevo_estado[i_cada_estado_AFND] = 1;
+              }
+              
 
               /* Aqui cuando estamos mirando las transiciones para los estados y estamos guardando en nuevo estado el la codificacion
               del estado destino, tenemos que comprobar si estos destinos pueden ir a otro sitio con lambda */
@@ -542,6 +544,7 @@ AFND* AFNDTransforma(AFND* afnd){
 
               if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
                 flag_estado_final = 2;
+                printf("---> TENEMOS UN ESTADO FINAL %s <<<<----", nombre_nuevo_estado);
               }
             }
           }
@@ -550,12 +553,26 @@ AFND* AFNDTransforma(AFND* afnd){
 
       for (i_subestado = 0; i_subestado < num_estados; i_subestado++) {
         if(nuevo_estado[i_subestado] == 1) { //para los estados a los que podemos ir, miramos las lambdas
+        // if (flag_hay_transiciones != 1) {
+        //     strcpy(nombre_nuevo_estado, "");
+        //   }
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
-            if (AFNDCierreLTransicionIJ(afnd, i_subestado, i_cada_estado_AFND) == 1) {
+            if (AFNDCierreLTransicionIJ(afnd, i_subestado, i_cada_estado_AFND) == 1 && i_subestado != i_cada_estado_AFND) {
               printf(" ==== ESTAMOS MIRANDO PARA OTROS ESTADOS QUE NO SON EL INICIAL SI HAY TRANSICIONES LAMBDA === \n");
+              if (nuevo_estado[i_cada_estado_AFND] == 0) {
+                strcat(nombre_nuevo_estado, "q");
+                sprintf(str, "%d", i_cada_estado_AFND);
+                strcat(nombre_nuevo_estado, str);
+                nuevo_estado[i_cada_estado_AFND] = 1;
+                imprimir_codificiacion(nuevo_estado, num_estados);
+                
+              }
               
-              nuevo_estado[i_cada_estado_AFND] = 1;
-              imprimir_codificiacion(nuevo_estado, num_estados);
+
+              if(AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == FINAL || AFNDTipoEstadoEn(afnd, i_cada_estado_AFND) == INICIAL_Y_FINAL){
+                flag_estado_final = 2;
+                printf("---> TENEMOS UN ESTADO FINAL lambas %s <<<<----", nombre_nuevo_estado);
+              }
             }
           }
         }
@@ -587,8 +604,8 @@ AFND* AFNDTransforma(AFND* afnd){
               printf("%d-",nuevo_estado[aux] );
             }
 
-            printf("\n ANTES DE IS ESTADO IN !!!!!!!!!!! %d", j);
-            check = is_estado_in(nuevo_estado, creados, num_estados, j);
+            printf("\n ANTES DE IS ESTADO IN !!!!!!!!!!! %d", num_estados_creados-1);
+            check = is_estado_in(nuevo_estado, creados, num_estados, num_estados_creados-1);
             printf("CHECK = %d\n", check);
             if (check == 0) { //igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta
               printf("Dentro del check. No esta en creados\n" );
@@ -612,21 +629,21 @@ AFND* AFNDTransforma(AFND* afnd){
 
 
               tam_creados = sizeof(creados);
-              j = 0;
-              while(creados[j]){
-                j++;
-              }
+              // j = 0;
+              // while(creados[j]){
+              //   j++;
+              // }
               printf(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cuantos tengo añadidos en creados j = %d\n", num_estados_creados);
               // printf("tam_creados: %zu", tam_creados);
               // creados = (Intermedia **)realloc(creados, tam_creados);
-              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8);
-              creados[j] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
-              // num_estados_creados++;
+              creados = (Intermedia **)realloc(creados, tam_creados+sizeof(Intermedia *)+8*num_estados_creados);
+              creados[num_estados_creados] = crear_intermedia(nombre_nuevo_estado, num_estados, tipo_estado_nuevo, nuevo_estado);
+              num_estados_creados++;
 
               // creados[i+1] = inter_nuevo_estado; //recordamos que en contador es el contador de por donde vamos en la lista de creados
               // memcpy(creados[i+1], inter_nuevo_estado, sizeof(Intermedia *));
               printf("Voy a imprimir el ultimo que meto en creados\n");
-              imprimir_intermedia(creados[j], num_estados);
+              imprimir_intermedia(creados[num_estados_creados-1], num_estados);
               // eliminar_intermedia(inter_nuevo_estado);
               // eliminar_transicion(trans_nuevo_estado);
 
