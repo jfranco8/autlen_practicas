@@ -1,28 +1,45 @@
+/**
+ * Autores: Sofia Sanchez y Jesus Daniel Franco
+ * Fichero: intermedia.h
+ * 
+ * Contiene las funciones 
+ * 
+ */
+
 #include "transforma.h"
 
-/*
-* AFNDTransforma
-*
-* Transforma un AFND en un AFD equivalente
-*
-* Salida:
-*   AFND creado equivalente
-*   NULL en caso de error
-*/
-
+/**
+ * AFNDTransforma
+ *
+ * Transforma un AFND en un AFD equivalente
+ * 
+ * Argumentos de entrada:
+ *  - afnd: Automata no determinista que vamos a transformar
+ *
+ * Salida:
+ *   Automata determinista creado
+ *   NULL en caso de error
+ */
 AFND* AFNDTransforma(AFND* afnd){
 
   /*Intermedia *inicial; creo que aqui vamos a guardar todos los estados que vayan saliendiendo en el afnd*/
   Intermedia **creados = NULL;
-  int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0, aux;
-  int pos_inicial, cont_transiciones, k, flag_estado_final = 0;
-  char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE];
-  char nombre_nuevo_estado[MAX_NOMBRE];
-  char str[MAX_NOMBRE]; /*este sirve para pasar el nombre de cada subestado a cadena de caracteres y luego concatenar para poder hacer q0q1 */
   AFND *determinista;
   size_t tam_creados;
 
-  /*i_simbolo me sirve para saber porque simbolo voy
+  int num_estados, num_simbolos, check, tipo_estado_nuevo, flag_hay_transiciones = 0, aux;
+  int pos_inicial, cont_transiciones, k, flag_estado_final = 0;
+
+  /* 
+  nombre_inicial sirve para guardar el nombre del estado inicial
+  simbolo sirve para guardar la cadena de caracteres para el simbolo de una transicion
+  nombre_nuevo_estado lo utlilizamos para guardar el nombre del nuevo estado que se ha generado con las transiciones
+  str lo utlizamos como cadena auxiliar para añadir el numero al lado de una q en un nuevo estado
+  */
+  char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE], nombre_nuevo_estado[MAX_NOMBRE], str[MAX_NOMBRE];
+
+  /*
+  i_simbolo me sirve para saber porque simbolo voy
   i me sirve para contar por el estado que voy en la lista creados
   i_subestado me sirve para saber el indice del subestado por el que voy. Si tengo q0q2 primero tendre i_subestado = 0 y luego i_subestado = 2
   i_cada_estado_AFND me sirve para comprobar los estados destino en las transiciones
@@ -56,7 +73,6 @@ AFND* AFNDTransforma(AFND* afnd){
   }
 
   /* como soy el inicial y se que posicion tengo tendre que decirle a la i_codificacion que soy el [1,0,0,0,0] */
-  
   for (i=0; i<num_estados; i++){
     if(i == pos_inicial){
       codificacion_inicial[i] = 1;

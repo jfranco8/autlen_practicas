@@ -8,8 +8,19 @@
 #include "afnd.h"
 #include "intermedia.h"
 
-/*#define MAX_NOMBRE 500
-#define MAX_TRANSICIONES 500*/
+
+/**
+ * AFNDTransforma
+ *
+ * Transforma un AFND en un AFD equivalente
+ * 
+ * Argumentos de entrada:
+ *  - afnd: Automata no determinista que vamos a transformar
+ *
+ * Salida:
+ *   Automata determinista creado
+ *   NULL en caso de error
+ */
 
 AFND* AFNDTransforma(AFND* afnd);
 
