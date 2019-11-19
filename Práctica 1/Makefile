@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall -ansi -pedantic
-CCFLAGS = -g
+CCFLAGS = -g -ansi -pedantic
 OBJ = *.o
 
 all: pr_afnd prueba3
