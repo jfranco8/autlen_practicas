@@ -56,6 +56,15 @@ int get_tipo_estado(AFND *afnd, int posicion, int tipo_antes){
   return AFNDTipoEstadoEn(afnd, posicion);
 }
 
+/**
+ * Inicializar_codificacion
+ * 
+ * Nos permite inicializar una codificacion toda a 0 (es decir, el array esta todo inicializado a 0's)
+ * 
+ * Argumentos de entrada:
+ *  - cod: array de enteros que queremos incializar
+ *  - num_estados: numero de estados del AFND
+ */
 void inicializar_codificacion(int *cod, int num_estados) {
   int i;
   for (i = 0; i <num_estados; i++){
@@ -63,6 +72,17 @@ void inicializar_codificacion(int *cod, int num_estados) {
   }
 }
 
+/**
+ * Inicializar_codificacion_inicial
+ * 
+ * Nos permite inicializar la codificacion del estado incial del AFD
+ * 
+ * Argumentos de entrada:
+ *  - cod: array de enteros que queremos inicializar
+ *  - num_estados: numero de estados del AFND
+ *  - pos_inicial: posicion del estado inicial
+ * 
+ */
 void inicializar_codificacion_inicial(int *cod, int num_estados, int pos_inicial){
   int i;
 
@@ -76,6 +96,21 @@ void inicializar_codificacion_inicial(int *cod, int num_estados, int pos_inicial
   }
 }
 
+/**
+ * crear_automata_determinista
+ * 
+ * Nos permite formar el automata derminista llamando a las funciones de la API que insertan los simbolos, estados y transiciones
+ * 
+ * Argumentos de entrada:
+ *  - afnd: AFND anterior donde tenemos los simbolos
+ *  - creados: lista con todos los nuevos estados del AFD
+ *  - contador: contiene el numero de estados del nuevo AFD
+ *  - num_simbolos: contiene el numero de simbolos del AFD
+ * 
+ * Salida:
+ *  Automata determinista ya creado
+ * 
+ */
 AFND *crear_automata_determinista(AFND *afnd, Intermedia **creados, int contador, int num_simbolos) {
   AFND *determinista = NULL;
   int i, k;
@@ -107,10 +142,20 @@ AFND *crear_automata_determinista(AFND *afnd, Intermedia **creados, int contador
   return determinista;
 }
 
-void liberar_memoria(Intermedia **creados, Intermedia *creado, int contador){
+/**
+ * Liberar memoria
+ * 
+ * Nos permite liberar la memoria reservada para la lista creados de estructuras intermedias eliminando la memoria reservada para las trasiciones y
+ * para las estructuras intermedias
+ * 
+ * Argumentos de entrada:
+ *  - creados: lista de estructuras intermedias
+ *  - creado: estructura intermedia que tenemos que eliminar
+ *  - contador: contador para saber cuantos tenemos que liberar
+ */ 
+void liberar_memoria(Intermedia **creados, int contador){
   int i, k;
 
-  free(creado);
   for (i = 0; i < contador; i++) {
     k = 0;
     while(get_intermedia_transicion(creados[i], k)  != NULL){
@@ -172,7 +217,7 @@ AFND* AFNDTransforma(AFND* afnd){
   int *nuevo_estado;
   int *codificacion_inicial, k;
 
-  /* obtenemos datos del automata original*/
+  /* obtenemos datos del automata original: numero de estados y numero de simbolos */
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
 
@@ -180,25 +225,24 @@ AFND* AFNDTransforma(AFND* afnd){
   codificacion_inicial = (int*)malloc(sizeof(int)*num_estados);
 
 
-  /* obtenemos el estado inicial.
-  Lo que recibimos es la posicion del estado inicial*/
+  /* obtenemos la posicion del estado inicial */
   pos_inicial = AFNDIndiceEstadoInicial(afnd);
 
-  /* tenemos que crear la estructura intermedia para el estado incial
-  obtenemos el nombre del estado incial*/
+  /* tenemos que crear la estructura intermedia para el estado incial */
+
+  /*obtenemos el nombre del estado incial y lo copiamos */
   strcpy(nombre_inicial, AFNDNombreEstadoEn(afnd, pos_inicial));
-
-
-  inicializar_codificacion(nuevo_estado, num_estados);
-
-  /* como soy el inicial y se que posicion tengo tendre que decirle a la i_codificacion que soy el [1,0,0,0,0] */
+  /* inicializamos la codificacion del estado inicial */
   inicializar_codificacion_inicial(codificacion_inicial, num_estados, pos_inicial);
 
-  /* COMPROBANDO LAS LAMBDAS DEL ESTADO INICIAL */
+  /* inicializamos la codificacion del estado nuevo */
+  inicializar_codificacion(nuevo_estado, num_estados);
+
+  /* comprobamos las lambdas del estado inicial */
   for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
     if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1 && pos_inicial != i_cada_estado_AFND) {
       
-      /* Si se puede ir con transiciones lambda lo indicamos en la codificacion y en el nombre*/
+      /* cambiamos el nombre del estado inicial y la codificacion añadiendole la transicion lambda */
       strcat(nombre_inicial, "q");
       sprintf(str, "%d", i_cada_estado_AFND);
       strcat(nombre_inicial,str);
@@ -207,6 +251,8 @@ AFND* AFNDTransforma(AFND* afnd){
       flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
       tipo_estado_nuevo = flag_estado_final;
     } 
+
+    /* si no hay transiciones lambda indicamos que es inicial */
     else {
       if(pos_inicial == i_cada_estado_AFND){
         tipo_estado_nuevo = INICIAL;
@@ -214,29 +260,39 @@ AFND* AFNDTransforma(AFND* afnd){
     }
   }
 
+  /* seservamos memoria para la lista de estructuras intermedias */
   creados = (Intermedia **)malloc(sizeof(Intermedia *)+8);
+
+  /* guardamos el estado inicial */
   creados[0] = crear_intermedia(nombre_inicial, num_estados, tipo_estado_nuevo, codificacion_inicial);
   tipo_estado_nuevo = NORMAL;
+
+  /* ponemos el siguiente a null */
   creados[1] = NULL;
   i = contador;
   contador ++;
 
 
+  /* mientras que tengamos estados en la lista de creados */
   while(creados[i] != NULL || i == 0){
 
+    /* inicializamos el contador para las transiciones */
     cont_transiciones = 0;
 
-    /*ahora queremos para cada simbolo --> tenemos el numero de simbolos*/
+    /* para cada simbolo del AFND */
     for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
-      /* lo que tengo que hacer es coger el simbolo del alfabeto*/
-      strcpy(simbolo, AFNDSimboloEn(afnd, i_simbolo)); /*ya tenemos el  simbolo*/
-      /*para cada sub estado del estado actual: Con subestado nos queremos referir a que si el estado actual es q0q1 tenemos el estado incial*/
+
+      /* guardamos el simbolo que estamos mirando */
+      strcpy(simbolo, AFNDSimboloEn(afnd, i_simbolo));
+
+      /* inicializamos la flag para mirar si hay transiciones */
       flag_hay_transiciones = 0;
 
+      /* inicializamos a 0 la codificacion del nuevo estado */
       inicializar_codificacion(nuevo_estado, num_estados);
 
+      /* para cada subestado */
       for(i_subestado = 0; i_subestado < num_estados; i_subestado++) {
-        /* comprobamos que subestado estamos trabajando mirando en la cadena [0,0,0,0,0,0] que posiciones estan a 1, si esta a 1 --> tenemos un subestado*/
         if (get_intermedia_codificacion(creados[i])[i_subestado] == 1) {
 
           /* si estamos en un subestado tenemos que mirar a donde podemos ir*/
@@ -244,6 +300,7 @@ AFND* AFNDTransforma(AFND* afnd){
             strcpy(nombre_nuevo_estado, "");
           }
 
+          /* miramos las transiciones desde cada sub estado */
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND ++) {
             if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i_subestado, i_simbolo, i_cada_estado_AFND) == 1) {
               flag_hay_transiciones = 1;
@@ -267,8 +324,11 @@ AFND* AFNDTransforma(AFND* afnd){
         }
       }
 
+      /* para cada sub estado */
       for (i_subestado = 0; i_subestado < num_estados; i_subestado++) {
-        if(nuevo_estado[i_subestado] == 1) { /* para los estados a los que podemos ir, miramos las lambdas */
+        if(nuevo_estado[i_subestado] == 1) {
+
+          /* para cada sub estado destino miramos si tenemos transicones lambda */
           for (i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++) {
             if (AFNDCierreLTransicionIJ(afnd, i_subestado, i_cada_estado_AFND) == 1 && i_subestado != i_cada_estado_AFND) {          
               if (nuevo_estado[i_cada_estado_AFND] == 0) {
@@ -292,6 +352,7 @@ AFND* AFNDTransforma(AFND* afnd){
         }
       }
 
+      /* comprobamos si hay transiciones. En caso de que haya tenemos que reservarles memoria */
       if(flag_hay_transiciones == 1){
         strcpy(nombre_nuevo_estado, "");
         for(k = 0; k < num_estados; k++){
@@ -301,17 +362,17 @@ AFND* AFNDTransforma(AFND* afnd){
             strcat(nombre_nuevo_estado, str);
           }
         }
-        /* TRANSICION */
+        /* Reservamos memoria para la transicion y se la asignamos al nuevo estado */
         set_intermedia_transicion(creados[i], cont_transiciones, crear_transicion(num_estados, simbolo, nombre_nuevo_estado, nuevo_estado));
         cont_transiciones++;
 
-            
+        /* ponemos la siguente transicion  a null */    
         set_intermedia_transicion(creados[i], cont_transiciones, NULL);
 
-        /* EN TEORIA YA TENEMOS EL NUEVO ESTADO CREADO, ES DECIR, TENEMOS UNA NUEVA ESTRUCTURA INTERMEDIA QUE TENEMOS QUE AÑADIR A CREADOS NO ?
-        PRIMERO TENEMOS QUE COMPROBAR SI YA ESTA EN CREADOS O NO. SI NO ESTA LO METEMOS --> podemos directamente ni crearlo */
-            
-            
+       
+        /* antes de meterlo en la lista de creados, tenemso que ver si ya está dentro de esta.
+        En caso de que no este, reservaremos memoria para la estructura intermedia,  es decir, para el nuevo estado del AFD .
+        Si esta, no haremos nada y pasaremos al siguente */
         check = is_estado_in(nuevo_estado, creados, num_estados, num_estados_creados-1);
         if (check == 0) { /* igual todo lo que hacemos aqui podemos juntarlo en una funcion para que sea mas corta */
           /* No esta en la lista de creados, entonces tenemos que añadirlo */
@@ -329,22 +390,22 @@ AFND* AFNDTransforma(AFND* afnd){
         set_intermedia_transicion(creados[i], cont_transiciones, NULL);
       }
     }
+    /* incrementamos para coger el siguiente estado en creados */
     i++;
   }
 
-
-  
-  /* Creamos el autómata determinista para poder dibujarlo */
-
-  
+  /* liberamos la memoria reservada para las codificaciones */
   creados[i]=NULL;
   free(nuevo_estado);
   free(codificacion_inicial);
   contador = i;
 
+  /* creamos el automata determinista */
   determinista = crear_automata_determinista(afnd, creados, contador, num_simbolos);
   
-  liberar_memoria(creados, creados[i], contador);
+  /*liberamos la memoria para la lista de estados del AFND */
+  free(creados[i]);
+  liberar_memoria(creados, contador);
   
   return determinista;
 
