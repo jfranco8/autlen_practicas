@@ -233,7 +233,6 @@ int is_estado_in(int *codificacion, Intermedia **creados, int num_estados, int n
   num_creados = num_creados + 1;
 
   /* Para cada estructura intermedia guardada en creados, compararemos su codificacion con la codificacion que recibimos como argumento de entrada */
-  printf("!!!!!!!! DENTRO IS ESTADO IN !!!! \n num_creados: %d\n",num_creados );
   for (i = 0; i < num_creados; i++) {
 
     /* Vemos si la codificacion dada coincide con alguna de las que ya tenemos
