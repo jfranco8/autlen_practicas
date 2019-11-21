@@ -287,9 +287,13 @@ AFND* AFNDTransforma(AFND* afnd){
     }
 
     /* si no hay transiciones lambda indicamos que es inicial */
+    /*
+    para ello obtenemos el tipo del estado original del afnd, ya que
+    puede ser INICIAL o INICIAL_Y_FINAL
+    */
     else {
       if(pos_inicial == i_cada_estado_AFND){
-        tipo_estado_nuevo = INICIAL;
+        tipo_estado_nuevo = AFNDTipoEstadoEn(afnd, i_cada_estado_AFND);
       }
     }
   }
