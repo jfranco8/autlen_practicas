@@ -18,11 +18,11 @@ int main(int argc, char ** argv)
 
 	AFNDInsertaEstado(p_afnd, "q0",INICIAL);
 	AFNDInsertaEstado(p_afnd, "q1", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q2", FINAL);
+	AFNDInsertaEstado(p_afnd, "f0", FINAL);
 
 	AFNDInsertaTransicion(p_afnd, "q0", "0", "q0");
 	AFNDInsertaTransicion(p_afnd, "q0", "1", "q0");
-	AFNDInsertaTransicion(p_afnd, "q1", "1", "q2");
+	AFNDInsertaTransicion(p_afnd, "q1", "1", "f0");
 
 	AFNDInsertaLTransicion(p_afnd, "q0", "q1");
 	AFNDCierraLTransicion(p_afnd);

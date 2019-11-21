@@ -14,6 +14,11 @@ int main(int argc, char ** argv)
 	/*p_afnd = AFNDNuevo("prueba3", 6, 13);*/
   p_afnd = AFNDNuevo("prueba3", 6, 4);
 
+	/*
+	Para la representación de este autómata hemos optado por juntar los símobolos
+	de transición numérica para facilitar la comprensión visual de afd
+	*/
+
 	/*AFNDInsertaSimbolo(p_afnd,"0");
 	AFNDInsertaSimbolo(p_afnd,"1");
 	AFNDInsertaSimbolo(p_afnd,"2");
@@ -24,7 +29,8 @@ int main(int argc, char ** argv)
 	AFNDInsertaSimbolo(p_afnd,"7");
 	AFNDInsertaSimbolo(p_afnd,"8");
 	AFNDInsertaSimbolo(p_afnd,"9");*/
-  AFNDInsertaSimbolo(p_afnd,"0,...,9");
+
+	  AFNDInsertaSimbolo(p_afnd,"0,...,9");
 	AFNDInsertaSimbolo(p_afnd,"+");
 	AFNDInsertaSimbolo(p_afnd,"-");
 	AFNDInsertaSimbolo(p_afnd,".");
@@ -32,7 +38,7 @@ int main(int argc, char ** argv)
 	AFNDInsertaEstado(p_afnd, "q0",INICIAL);
 	AFNDInsertaEstado(p_afnd, "q1", NORMAL);
 	AFNDInsertaEstado(p_afnd, "q2", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q3", NORMAL);
+	AFNDInsertaEstado(p_afnd, "f3", NORMAL);
 	AFNDInsertaEstado(p_afnd, "q4", NORMAL);
 	AFNDInsertaEstado(p_afnd, "q5", FINAL);
 
@@ -68,34 +74,34 @@ int main(int argc, char ** argv)
 	AFNDInsertaTransicion(p_afnd, "q1", ".", "q2");
 
 
-  AFNDInsertaTransicion(p_afnd, "q2", "0,...,9", "q3");
-	/*AFNDInsertaTransicion(p_afnd, "q2", "0", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "1", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "2", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "3", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "4", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "5", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "6", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "7", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "8", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "9", "q3");*/
+  AFNDInsertaTransicion(p_afnd, "q2", "0,...,9", "f3");
+	/*AFNDInsertaTransicion(p_afnd, "q2", "0", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "1", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "2", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "3", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "4", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "5", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "6", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "7", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "8", "f3");
+	AFNDInsertaTransicion(p_afnd, "q2", "9", "f3");*/
 
-  AFNDInsertaTransicion(p_afnd, "q3", "0,...,9", "q3");
-  /*AFNDInsertaTransicion(p_afnd, "q3", "0", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "1", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "2", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "3", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "4", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "5", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "6", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "7", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "8", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "9", "q3");*/
+  AFNDInsertaTransicion(p_afnd, "f3", "0,...,9", "f3");
+  /*AFNDInsertaTransicion(p_afnd, "f3", "0", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "1", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "2", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "3", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "4", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "5", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "6", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "7", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "8", "f3");
+	AFNDInsertaTransicion(p_afnd, "f3", "9", "f3");*/
 
-  AFNDInsertaTransicion(p_afnd, "q4", ".", "q3");
+  AFNDInsertaTransicion(p_afnd, "q4", ".", "f3");
 
 	AFNDInsertaLTransicion(p_afnd, "q0", "q1");
-  AFNDInsertaLTransicion(p_afnd, "q3", "q5");
+  AFNDInsertaLTransicion(p_afnd, "f3", "q5");
 	AFNDCierraLTransicion(p_afnd);
 
 	afd  = AFNDTransforma(p_afnd);

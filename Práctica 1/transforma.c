@@ -233,9 +233,8 @@ AFND* AFNDTransforma(AFND* afnd){
   nombre_inicial sirve para guardar el nombre del estado inicial
   simbolo sirve para guardar la cadena de caracteres para el simbolo de una transicion
   nombre_nuevo_estado lo utlilizamos para guardar el nombre del nuevo estado que se ha generado con las transiciones
-  str lo utlizamos como cadena auxiliar para añadir el numero al lado de una q en un nuevo estado
   */
-  char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE], nombre_nuevo_estado[MAX_NOMBRE], str[MAX_NOMBRE];
+  char nombre_inicial[MAX_NOMBRE], simbolo[MAX_NOMBRE], nombre_nuevo_estado[MAX_NOMBRE];
 
   /*
   Explicacion de los contadores
@@ -279,9 +278,13 @@ AFND* AFNDTransforma(AFND* afnd){
     if (AFNDCierreLTransicionIJ(afnd, pos_inicial, i_cada_estado_AFND) == 1 && pos_inicial != i_cada_estado_AFND) {
 
       /* cambiamos el nombre del estado inicial y la codificacion añadiendole la transicion lambda */
+
+      strcat(nombre_inicial, AFNDNombreEstadoEn(afnd, i_cada_estado_AFND));
+      /*
       strcat(nombre_inicial, "q");
       sprintf(str, "%d", i_cada_estado_AFND);
       strcat(nombre_inicial,str);
+      */
       codificacion_inicial[i_cada_estado_AFND] = 1;
 
       flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
@@ -397,9 +400,12 @@ AFND* AFNDTransforma(AFND* afnd){
         strcpy(nombre_nuevo_estado, "");
         for(k = 0; k < num_estados; k++){
           if(nuevo_estado[k] == 1){
+            strcat(nombre_nuevo_estado, AFNDNombreEstadoEn(afnd, k));
+            /*
             strcat(nombre_nuevo_estado, "q");
             sprintf(str, "%d", k);
             strcat(nombre_nuevo_estado, str);
+            */
           }
         }
         /* Reservamos memoria para la transicion y se la asignamos al nuevo estado */
