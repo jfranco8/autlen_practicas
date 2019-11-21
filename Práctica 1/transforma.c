@@ -1,6 +1,6 @@
 /**
  * Autores: Sofia Sanchez y Jesus Daniel Franco
- * Fichero: intermedia.h
+ * Fichero: transforma.c
  *
  * Contiene las funciones
  *
@@ -280,11 +280,6 @@ AFND* AFNDTransforma(AFND* afnd){
       /* cambiamos el nombre del estado inicial y la codificacion añadiendole la transicion lambda */
 
       strcat(nombre_inicial, AFNDNombreEstadoEn(afnd, i_cada_estado_AFND));
-      /*
-      strcat(nombre_inicial, "q");
-      sprintf(str, "%d", i_cada_estado_AFND);
-      strcat(nombre_inicial,str);
-      */
       codificacion_inicial[i_cada_estado_AFND] = 1;
 
       flag_estado_final = get_tipo_estado(afnd, i_cada_estado_AFND, tipo_estado_nuevo);
@@ -400,12 +395,11 @@ AFND* AFNDTransforma(AFND* afnd){
         strcpy(nombre_nuevo_estado, "");
         for(k = 0; k < num_estados; k++){
           if(nuevo_estado[k] == 1){
-            strcat(nombre_nuevo_estado, AFNDNombreEstadoEn(afnd, k));
             /*
-            strcat(nombre_nuevo_estado, "q");
-            sprintf(str, "%d", k);
-            strcat(nombre_nuevo_estado, str);
+            si el nuevo estado tiene como subestado al que está en la posicion
+            k, le añadimos ese nombre
             */
+            strcat(nombre_nuevo_estado, AFNDNombreEstadoEn(afnd, k));
           }
         }
         /* Reservamos memoria para la transicion y se la asignamos al nuevo estado */

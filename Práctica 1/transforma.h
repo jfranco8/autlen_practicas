@@ -1,3 +1,11 @@
+/**
+ * Autores: Sofia Sanchez y Jesus Daniel Franco
+ * Fichero: transforma.h
+ *
+ * Contiene las funciones
+ *
+ */
+
 #ifndef TRANSFORMA_H
 #define TRANSFORMA_H
 
@@ -13,7 +21,7 @@
  * AFNDTransforma
  *
  * Transforma un AFND en un AFD equivalente
- * 
+ *
  * Argumentos de entrada:
  *  - afnd: Automata no determinista que vamos a transformar
  *

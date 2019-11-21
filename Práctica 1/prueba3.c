@@ -1,3 +1,11 @@
+/**
+ * Autores: Sofia Sanchez y Jesus Daniel Franco
+ * Fichero: prueba3.c
+ *
+ * Contiene las funciones
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +24,7 @@ int main(int argc, char ** argv)
 
 	/*
 	Para la representación de este autómata hemos optado por juntar los símobolos
-	de transición numérica para facilitar la comprensión visual de afd
+	de transición numérica para facilitar la comprensión visual del afd
 	*/
 
 	/*AFNDInsertaSimbolo(p_afnd,"0");

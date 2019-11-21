@@ -1,3 +1,11 @@
+/**
+ * Autores: Sofia Sanchez y Jesus Daniel Franco
+ * Fichero: prueba5.c
+ *
+ * Contiene las funciones
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
