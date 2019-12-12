@@ -81,35 +81,42 @@ int isDistinguibleRecursiva(AFND* afnd, int **matriz, int pos1, int pos2, int nu
   int nuevo_pos1, nuevo_pos2;
   int i;
   int clase[num_estados];
+  int contador1 = 0; /* para saber si es distinguible o no */
+  int contador2 = 0; /* para saber si es distinguible o no */
 
   for(i=0; i < num_estados; i++){
     clase[i] = 0;
   }
 
+  /*miramos si estan marcados*/
   if (isDistinguible(matriz, pos1, pos2) == 0){
+    return 1;
+  }
+
+  /* */
+  if (pos1 == pos2) {
     return 0;
   }
 
+  /* para cada simbolo */
   for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
+    /* para cada estado */
     for(i=0; i < num_estados; i++){
       if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, pos1, i_simbolo, i) == 1){
-        nuevo_pos1 = i;
+        contador1 += isDistinguibleRecursiva(afnd, matriz, pos1,i,num_estados,num_simbolos);
       }
       if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, pos2, i_simbolo, i) == 1){
-        nuevo_pos2 = i;
+        contador2 += isDistinguibleRecursiva(afnd, matriz, pos2,i,num_estados,num_simbolos);
       }
     }
-
-    if(isDistinguible(nuevo_pos1, nuevo_pos2) == 0){
-      return 0;
-    } else {
-      //append
-      // añadimos a la clase
-    }
-
-
   }
 
+  /* cuando el contador es mayor que 0 es porque hemos encontrado cosas distingubles */
+  if (contador1 > 0 && contador2 > 0) {
+    return 1;
+  }
+
+  return 0;
 }
 
 
@@ -142,14 +149,24 @@ void estadosDistinguibles(AFND *afnd){
     }
   }
 
+
+  /* para cada p-q*/
   for (i=0; i < num_estados; i++){
     for(j=0; j < num_estados; j++){
       if(i != j){
-        // se llama y habrá que hacer más mierdas
-        isDistinguibleRecursiva(afnd, matriz_distiguibles, i, j, num_estados, num_simbolos);
+        if (isDistinguibleRecursiva(afnd, matriz_distiguibles, i, j, num_estados, num_simbolos) == 1){
+          matriz_distiguibles[i][j] = 1;
+          matriz_distiguibles[j][i] = 1;
+        }
       }
     }
   }
 
 
+  /* imprimimos la matriz */
+  for (i=0; i < num_estados; i++){
+    for(j=0; j < num_estados; j++){
+      printf("%d-\n", matriz_distiguibles[i][j]);
+    }
+  }
 }

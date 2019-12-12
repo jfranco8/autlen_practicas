@@ -19,26 +19,21 @@ int main(int argc, char ** argv)
 	AFND * p_afnd;
 	AFND * afd;
 
-	p_afnd = AFNDNuevo("prueba1", 6, 2);
+	p_afnd = AFNDNuevo("prueba1", 3, 2);
 
 	AFNDInsertaSimbolo(p_afnd,"0");
 	AFNDInsertaSimbolo(p_afnd,"1");
 
-	AFNDInsertaEstado(p_afnd, "q0",INICIAL);
-	AFNDInsertaEstado(p_afnd, "q1", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q2", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q3", FINAL);
-	AFNDInsertaEstado(p_afnd, "q4", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q5", NORMAL);
+	AFNDInsertaEstado(p_afnd, "C",INICIAL_Y_FINAL);
+	AFNDInsertaEstado(p_afnd, "D", FINAL);
+	AFNDInsertaEstado(p_afnd, "E", NORMAL);
 
-	AFNDInsertaTransicion(p_afnd, "q0", "0", "q1");
-	AFNDInsertaTransicion(p_afnd, "q0", "1", "q3");
-	AFNDInsertaTransicion(p_afnd, "q1", "0", "q4");
-	AFNDInsertaTransicion(p_afnd, "q2", "0", "q0");
-	AFNDInsertaTransicion(p_afnd, "q2", "0", "q3");
-	AFNDInsertaTransicion(p_afnd, "q2", "1", "q1");
-	AFNDInsertaTransicion(p_afnd, "q3", "0", "q5");
-	AFNDInsertaTransicion(p_afnd, "q5", "1", "q1");
+	AFNDInsertaTransicion(p_afnd, "C", "0", "D");
+	AFNDInsertaTransicion(p_afnd, "C", "1", "E");
+	AFNDInsertaTransicion(p_afnd, "D", "0", "D");
+	AFNDInsertaTransicion(p_afnd, "D", "1", "E");
+	AFNDInsertaTransicion(p_afnd, "E", "0", "C");
+	AFNDInsertaTransicion(p_afnd, "E", "1", "E");
 
 	AFNDCierraLTransicion(p_afnd);
 
@@ -47,7 +42,7 @@ int main(int argc, char ** argv)
 	AFNDADot(afd);*/
 	AFNDADot(p_afnd);
 
-	estadosAccesibles(p_afnd);
+	estadosDistinguibles(p_afnd);
 
 	AFNDElimina(p_afnd);
 
