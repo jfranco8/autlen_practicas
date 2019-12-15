@@ -141,6 +141,7 @@ AFND *crear_automata_determinista(AFND *afnd, Intermedia **creados, int contador
 
   /* Insetamos los estados */
   for (i = 0; i < contador; i++){
+    printf("error en a posicion %d de nuevos_estados\n", i);
     AFNDInsertaEstado(determinista, get_intermedia_nombre(creados[i]), get_intermedia_tipo(creados[i]));
   }
 

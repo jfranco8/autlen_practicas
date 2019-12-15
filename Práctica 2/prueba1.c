@@ -12,12 +12,14 @@
 
 #include "afnd.h"
 #include "transforma.h"
+#include "minimiza.h"
 
 int main(int argc, char ** argv)
 {
 
 	AFND * p_afnd;
 	AFND * afd;
+	int **matriz_distiguibles;
 
 	/*p_afnd = AFNDNuevo("prueba1", 3, 2);
 
@@ -74,9 +76,13 @@ int main(int argc, char ** argv)
 	AFNDImprime(stdout,afd);
 	AFNDADot(afd);*/
 
-	estadosDistinguibles(p_afnd);
+	/*estadosDistinguibles(p_afnd, matriz_distiguibles);*/
+	afd = AFNDMinimiza(p_afnd);
+	AFNDImprime(stdout,afd);
+	AFNDADot(afd);
 
 	AFNDElimina(p_afnd);
+	AFNDElimina(afd);
 
 	return 0;
 }

@@ -14,7 +14,11 @@
 #include <string.h>
 
 #include "afnd.h"
+#include "intermedia.h"
+#include "transforma.h"
 
-void estadosAccesibles(AFND* afnd);
+int* estadosAccesibles(AFND* afnd);
+int** estadosDistinguibles(AFND *afnd);
+AFND* AFNDMinimiza(AFND *afnd);
 
 #endif
