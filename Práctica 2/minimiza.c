@@ -88,7 +88,6 @@ int* estadosAccesibles(AFND *afnd){
        for(i_estado = 0; i_estado < num_estados; i_estado ++){
          if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, creados[i_num_creados], i_simbolo, i_estado) == 1){
            if(notInCreados(creados, i_estado, i_num_creados) == 0){
-             printf("Hay transición de %d a %d\n", creados[i_num_creados], i_estado);
              accesibles[i_estado] = 1;
              creados = (int *)realloc(creados, sizeof(creados)+sizeof(int) + 4*num_creados);
              creados[num_creados] = i_estado;
@@ -101,13 +100,6 @@ int* estadosAccesibles(AFND *afnd){
        }
      }
      i_num_creados ++;
-   }
-
-
-   printf("Accesibles: \n");
-
-   for(i=0; i<num_estados; i++){
-     printf("%d\n", accesibles[i]);
    }
 
    free(creados);
@@ -144,7 +136,6 @@ int** estadosDistinguibles(AFND *afnd){
 
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
-  printf("\nNUMERO ESTADOS: %d\nNUMERO SIMBOLOS: %d\n", num_estados, num_simbolos);
 
   /* reservamos memoria para la matriz */
   matriz_distinguibles = (int **)malloc(sizeof(int *)*num_estados);
@@ -159,15 +150,6 @@ int** estadosDistinguibles(AFND *afnd){
     }
   }
 
-  for (i=0; i < num_estados; i++){
-    for(j=0; j < num_estados; j++){
-      printf("%d-", matriz_distinguibles[i][j]);
-    }
-    printf("\n");
-  }
-
-  printf("ha reservado memoria para la matriz jeje\n");
-
   /* Hayamos los primeros distinguibles, los que sean finales */
   for (i=0; i < num_estados; i++){
     if(AFNDTipoEstadoEn(afnd, i) == FINAL || AFNDTipoEstadoEn(afnd, i) == INICIAL_Y_FINAL){
@@ -178,13 +160,6 @@ int** estadosDistinguibles(AFND *afnd){
         }
       }
     }
-  }
-
-  for (i=0; i < num_estados; i++){
-    for(j=0; j < num_estados; j++){
-      printf("%d-", matriz_distinguibles[i][j]);
-    }
-    printf("\n");
   }
 
   /* La primera vez se tachan bien */
@@ -200,10 +175,8 @@ int** estadosDistinguibles(AFND *afnd){
     for (i=0; i < num_estados; i++){
       for(j=0; j < num_estados; j++){
         if(i != j){
-          printf("mira isdistinguible (%d, %d)\n", i, j);
           /* miramos que no este marcado en la matriz para poder mirar sus transiciones */
           if (matriz_distinguibles[i][j] == 0) {
-            printf("mira isdistinguible (%d, %d) --> NO ESTA MARCADO\n", i, j);
             /* si no esta marcado, lo estudiamos */
             /* vamos a mirar a donde podemos ir con las transiciones */
             for (i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo++){
@@ -212,20 +185,15 @@ int** estadosDistinguibles(AFND *afnd){
 
                 if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i, i_simbolo, i_cada_estado) == 1){
                   new_pos1 = i_cada_estado;
-                  printf("(new_pos1, i_cada_estado) hay transicion entre %d y %d con el simbolo %d\n", i, i_cada_estado,i_simbolo);
                 }
                 if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, j, i_simbolo, i_cada_estado) == 1){
-                  printf("(new_pos2, i_cada_estado) hay transicion entre %d y %d\n", j, i_cada_estado);
                   new_pos2 = i_cada_estado;
                 }
               }
               /* lo miramos en el caso de que sean diferentes */
-              printf("FLAG = %d\n", flag);
               if (new_pos2 != new_pos1) {
-                printf("(new_pos1,new_pos2) --> (%d,%d)\n", new_pos1, new_pos2);
                 /* tenemos que mirar si esta transicion esta marcada*/
                 if(matriz_distinguibles[new_pos1][new_pos2] == 1){
-                  printf("voy a marcar %d,%d\n", i,j);
                   matriz_distinguibles[i][j] = 1;
                   matriz_distinguibles[j][i] = 1;
                   flag = 1;
@@ -237,14 +205,6 @@ int** estadosDistinguibles(AFND *afnd){
         }
       }
     }
-  }
-
-  /* imprimimos la matriz */
-  for (i=0; i < num_estados; i++){
-    for(j=0; j < num_estados; j++){
-      printf("%d-", matriz_distinguibles[i][j]);
-    }
-    printf("\n");
   }
 
   return matriz_distinguibles;
@@ -278,23 +238,10 @@ AFND *AFNDMinimiza(AFND *afnd){
   num_estados = AFNDNumEstados(afnd);
   num_simbolos = AFNDNumSimbolos(afnd);
 
-  printf("********** ESTADOS_ACCESIBLES **********\n");
-  accesibles = estadosAccesibles(afnd);
-  printf("********** MATRIZ_DISTINGUIBLES **********\n");
-  matriz_distinguibles = estadosDistinguibles(afnd);
 
-  printf("********** ACCESBLES IMPRESO FUERA **********\n");
-  printf("Accesibles: \n");
-  for(i=0; i<num_estados; i++){
-    printf("%d\n", accesibles[i]);
-  }
-  printf("********** MATRIZ IMPRESA FUERA **********\n");
-  for (i=0; i < num_estados; i++){
-    for(j=0; j < num_estados; j++){
-      printf("%d-", matriz_distinguibles[i][j]);
-    }
-    printf("\n");
-  }
+  accesibles = estadosAccesibles(afnd);
+  
+  matriz_distinguibles = estadosDistinguibles(afnd);
 
   /* Obtenemos las clases de equivalencia de la matriz, y para cada una de ellas
   creamos una estructura intermedia, un nuevo estado equivalente */
@@ -322,12 +269,6 @@ AFND *AFNDMinimiza(AFND *afnd){
           codificacion_clase_equivalencia[j] = 1; /* La clase la forman los que estén a 0 */
         }
       }
-
-      printf("Clase de equivalencia de %d: ", i);
-      for(j=0; j < num_estados; j++){
-        printf("%d", codificacion_clase_equivalencia[j]);
-      }
-      printf("\n");
 
       /* Guardamos la codificación inversa */
       check = is_estado_in(codificacion_clase_equivalencia, estados_nuevos, num_estados, num_estados_creados-1);
