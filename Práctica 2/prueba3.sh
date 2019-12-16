@@ -1,5 +1,5 @@
 make clean
 make
 ./prueba3
-dot -Tpng afd.dot > pruebas/prueba3.png
+dot -Tpng afd.dot > prueba3.png
 make clean

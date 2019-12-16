@@ -8,20 +8,11 @@ all: prueba1 prueba2 prueba3 prueba4 prueba5 prueba_clase
 prueba1: prueba1.o transforma.o afnd.o intermedia.o minimiza.o
 	$(CC) $(CFLAGS) -o prueba1 prueba1.o transforma.o afnd.o intermedia.o minimiza.o
 
-prueba2: prueba2.o transforma.o afnd.o intermedia.o
-	$(CC) $(CFLAGS) -o prueba2 prueba2.o transforma.o afnd.o intermedia.o
+prueba2: prueba2.o transforma.o afnd.o intermedia.o minimiza.o
+	$(CC) $(CFLAGS) -o prueba2 prueba2.o transforma.o afnd.o intermedia.o minimiza.o
 
-prueba3: prueba3.o transforma.o afnd.o intermedia.o
-	$(CC) $(CFLAGS) -o prueba3 prueba3.o transforma.o afnd.o intermedia.o
-
-prueba4: prueba4.o transforma.o afnd.o intermedia.o
-	$(CC) $(CFLAGS) -o prueba4 prueba4.o transforma.o afnd.o intermedia.o
-
-prueba5: prueba5.o transforma.o afnd.o intermedia.o
-	$(CC) $(CFLAGS) -o prueba5 prueba5.o transforma.o afnd.o intermedia.o
-
-prueba_clase: prueba_clase.o transforma.o afnd.o intermedia.o
-	$(CC) $(CFLAGS) -o prueba_clase prueba_clase.o transforma.o afnd.o intermedia.o
+prueba3: prueba3.o transforma.o afnd.o intermedia.o minimiza.o
+	$(CC) $(CFLAGS) -o prueba3 prueba3.o transforma.o afnd.o intermedia.o minimiza.o
 
 minimiza.o: minimiza.c minimiza.h
 	$(CC) $(CFLAGS) -c minimiza.c

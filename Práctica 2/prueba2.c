@@ -1,6 +1,6 @@
 /**
  * Autores: Sofia Sanchez y Jesus Daniel Franco
- * Fichero: prueba2.c
+ * Fichero: prueba1.c
  *
  * Contiene las funciones
  *
@@ -12,6 +12,7 @@
 
 #include "afnd.h"
 #include "transforma.h"
+#include "minimiza.h"
 
 int main(int argc, char ** argv)
 {
@@ -19,40 +20,47 @@ int main(int argc, char ** argv)
 	AFND * p_afnd;
 	AFND * afd;
 
-	p_afnd= AFNDNuevo("prueba2", 6, 3);
+	p_afnd = AFNDNuevo("prueba1", 8, 2);
 
-	AFNDInsertaSimbolo(p_afnd,"+");
-	AFNDInsertaSimbolo(p_afnd, "0");
-	AFNDInsertaSimbolo(p_afnd,".");
+	AFNDInsertaSimbolo(p_afnd,"0");
+	AFNDInsertaSimbolo(p_afnd,"1");
 
-	AFNDInsertaEstado(p_afnd, "q0",INICIAL);
-	AFNDInsertaEstado(p_afnd, "q1", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q2", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q3", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q4", NORMAL);
-	AFNDInsertaEstado(p_afnd, "q5", FINAL);
 
-	AFNDInsertaTransicion(p_afnd, "q0", "+", "q1");
-	AFNDInsertaTransicion(p_afnd, "q1", "0", "q1");
-	AFNDInsertaTransicion(p_afnd, "q1", "0", "q4");
-	AFNDInsertaTransicion(p_afnd, "q1", ".", "q2");
-	AFNDInsertaTransicion(p_afnd, "q2", "0", "q3");
-	AFNDInsertaTransicion(p_afnd, "q3", "0", "q3");
-	AFNDInsertaTransicion(p_afnd, "q4", ".", "q3");
+	AFNDInsertaEstado(p_afnd, "A", INICIAL);
+	AFNDInsertaEstado(p_afnd, "B", NORMAL);
+	AFNDInsertaEstado(p_afnd, "C", FINAL);
+	AFNDInsertaEstado(p_afnd, "D", NORMAL);
+	AFNDInsertaEstado(p_afnd, "E", NORMAL);
+	AFNDInsertaEstado(p_afnd, "F", NORMAL);
+	AFNDInsertaEstado(p_afnd, "G", NORMAL);
+	AFNDInsertaEstado(p_afnd, "H", NORMAL);
 
-	AFNDInsertaLTransicion(p_afnd, "q0", "q1");
-	AFNDInsertaLTransicion(p_afnd, "q3", "q5");
+
+	AFNDInsertaTransicion(p_afnd, "A", "0", "B");
+	AFNDInsertaTransicion(p_afnd, "A", "1", "F");
+	AFNDInsertaTransicion(p_afnd, "B", "0", "G");
+	AFNDInsertaTransicion(p_afnd, "B", "1", "C");
+	AFNDInsertaTransicion(p_afnd, "C", "0", "A");
+	AFNDInsertaTransicion(p_afnd, "C", "1", "C");
+	AFNDInsertaTransicion(p_afnd, "D", "0", "C");
+	AFNDInsertaTransicion(p_afnd, "D", "1", "G");
+	AFNDInsertaTransicion(p_afnd, "E", "0", "H");
+	AFNDInsertaTransicion(p_afnd, "E", "1", "F");
+	AFNDInsertaTransicion(p_afnd, "F", "0", "C");
+	AFNDInsertaTransicion(p_afnd, "F", "1", "G");
+	AFNDInsertaTransicion(p_afnd, "G", "0", "G");
+	AFNDInsertaTransicion(p_afnd, "G", "1", "E");
+	AFNDInsertaTransicion(p_afnd, "H", "0", "G");
+	AFNDInsertaTransicion(p_afnd, "H", "1", "C");
+
 	AFNDCierraLTransicion(p_afnd);
 
-
-
-	afd  = AFNDTransforma(p_afnd);
+	afd = AFNDMinimiza(p_afnd);
 	AFNDImprime(stdout,afd);
 	AFNDADot(afd);
-	AFNDADot(p_afnd);
 
-	AFNDElimina(afd);
 	AFNDElimina(p_afnd);
+	AFNDElimina(afd);
 
 	return 0;
 }

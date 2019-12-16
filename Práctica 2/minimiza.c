@@ -1,18 +1,18 @@
 #include "minimiza.h"
 
- 
+
 
 /**
  * notInCreados
- * 
+ *
  * Nos dice si esta en la lista de creados o no.
  * En caso de estarlo devolveremos un 1, en caso de no estarlo un 0.
- * 
+ *
  * Argumentos de entrada:
  * - creados: lista de enteros
  * - pos: posicion
  * - num_estados: numero de estados del automata
- * 
+ *
  * Salida:
  *  0 si no esta en creados, 1 si lo esta
  */
@@ -30,13 +30,13 @@ int notInCreados(int *creados, int pos, int num_estados){
 
 /**
  * isInAccesibles
- * 
+ *
  * Nos dice si una posicion es accesible o no.
- * 
+ *
  * Argumentos de entrada:
  * - accesibles: lista de enteros accesibles
  * - pos: posicion a comprobar
- * 
+ *
  * Salida:
  *  0 si no es accesible, 1 si lo es
  */
@@ -49,12 +49,12 @@ int isInAccesibles(int *accesibles, int pos){
 
 /**
  * estadosAccesibles
- * 
+ *
  * Nos permite obtener una lista de estados accesibles de un automata
- * 
+ *
  * Argumentos de entrada:
  * - afnd: automata del que queremos saber los estados accesibles
- * 
+ *
  * Salida:
  *  lista de enteros accesibles
  */
@@ -112,12 +112,12 @@ int* estadosAccesibles(AFND *afnd){
 
 /**
  * estadosDistinguibles
- * 
+ *
  * Nos permite saber los estados distinguibles de un automata
- * 
+ *
  * Argumentos de entrada:
  * - afnd: automata del que queremos obtener los distinguivles
- * 
+ *
  * Salida:
  *  matriz de los estados distingubles
  */
@@ -213,15 +213,15 @@ int** estadosDistinguibles(AFND *afnd){
 
 /**
  * AFNDMinimiza
- * 
+ *
  * Nos permite obtener un AFND minimizado
- * 
+ *
  * Argumentos de entrada:
  * - afnd: automata que queremos minimizar
- * 
+ *
  * Salida:
  *  AFND ya minimizado
- */ 
+ */
 AFND *AFNDMinimiza(AFND *afnd){
 
   int *accesibles = NULL;
@@ -240,7 +240,7 @@ AFND *AFNDMinimiza(AFND *afnd){
 
 
   accesibles = estadosAccesibles(afnd);
-  
+
   matriz_distinguibles = estadosDistinguibles(afnd);
 
   /* Obtenemos las clases de equivalencia de la matriz, y para cada una de ellas
@@ -252,7 +252,7 @@ AFND *AFNDMinimiza(AFND *afnd){
   for (i=0; i < num_estados; i++){
     if(accesibles[i] != 0){
       cont_transiciones = 0;
-      strcpy(nombre_nuevo_estado, "q");
+      strcpy(nombre_nuevo_estado, "");
       /* Creamos la el nodo equivalencia de i (si no lo tenemos creado aún) */
       for(j=0; j<num_estados; j++){
         codificacion_clase_equivalencia[j] = 0;
@@ -262,8 +262,12 @@ AFND *AFNDMinimiza(AFND *afnd){
         if(isInAccesibles(accesibles, j) == 1){
           codificacion_clase_equivalencia[j] = matriz_distinguibles[i][j];
           if(codificacion_clase_equivalencia[j] == 0){
-            sprintf(buffer, "_%d", j);
-            strcat(nombre_nuevo_estado, buffer);
+            if(strcmp(nombre_nuevo_estado, "") == 0){
+              strcat(nombre_nuevo_estado, AFNDNombreEstadoEn(afnd, j));
+            } else {
+              sprintf(buffer, "_%s", AFNDNombreEstadoEn(afnd, j));
+              strcat(nombre_nuevo_estado, buffer);
+            }
           }
         } else {
           codificacion_clase_equivalencia[j] = 1; /* La clase la forman los que estén a 0 */
@@ -283,15 +287,19 @@ AFND *AFNDMinimiza(AFND *afnd){
           for(j=0; j<num_estados; j++){
             codificacion_clase_equivalencia[j] = 0;
           }
-          strcpy(nombre_nuevo_estado, "q");
+          strcpy(nombre_nuevo_estado, "");
           for(i_cada_estado_AFND = 0; i_cada_estado_AFND < num_estados; i_cada_estado_AFND++){
             if (AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, i, i_simbolo, i_cada_estado_AFND) == 1){
               for(j=0; j < num_estados; j++){
                 if(isInAccesibles(accesibles, j) == 1){
                   codificacion_clase_equivalencia[j] = matriz_distinguibles[i_cada_estado_AFND][j];
                   if(codificacion_clase_equivalencia[j] == 0){
-                    sprintf(buffer, "_%d", j);
-                    strcat(nombre_nuevo_estado, buffer);
+                    if(strcmp(nombre_nuevo_estado, "") == 0){
+                      strcat(nombre_nuevo_estado, AFNDNombreEstadoEn(afnd, j));
+                    } else {
+                      sprintf(buffer, "_%s", AFNDNombreEstadoEn(afnd, j));
+                      strcat(nombre_nuevo_estado, buffer);
+                    }
                   }
                 } else {
                   codificacion_clase_equivalencia[j] = 1; /* La clase la forman los que estén a 0 */
@@ -318,7 +326,7 @@ AFND *AFNDMinimiza(AFND *afnd){
   /* liberamos toda la memoria que hemos necesitado */
   if(accesibles)
     free(accesibles);
-  
+
   if(matriz_distinguibles){
     for (i=0; i < num_estados; i++){
       if(matriz_distinguibles[i]){
