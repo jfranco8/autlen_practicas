@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef TRANSFORMA_H
-#define TRANSFORMA_H
+#ifndef MINIMIZA_H
+#define MINIMIZA_H
 
 #include <stdio.h>
 #include <stdlib.h>

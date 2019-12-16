@@ -129,7 +129,7 @@ void inicializar_codificacion_inicial(int *cod, int num_estados, int pos_inicial
  *  Automata determinista ya creado
  *
  */
-AFND *crear_automata_determinista(AFND *afnd, Intermedia **creados, int contador, int num_simbolos) {
+AFND *crear_automata(AFND *afnd, Intermedia **creados, int contador, int num_simbolos) {
   AFND *determinista = NULL;
   int i, k;
   determinista = AFNDNuevo("afd", contador, num_simbolos);
@@ -448,7 +448,7 @@ AFND* AFNDTransforma(AFND* afnd){
   contador = i;
 
   /* creamos el automata determinista */
-  determinista = crear_automata_determinista(afnd, creados, contador, num_simbolos);
+  determinista = crear_automata(afnd, creados, contador, num_simbolos);
 
   /*liberamos la memoria para la lista de estados del AFND */
   free(creados[i]);

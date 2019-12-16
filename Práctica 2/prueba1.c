@@ -19,7 +19,6 @@ int main(int argc, char ** argv)
 
 	AFND * p_afnd;
 	AFND * afd;
-	int **matriz_distiguibles;
 
 	/*p_afnd = AFNDNuevo("prueba1", 3, 2);
 

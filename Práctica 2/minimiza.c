@@ -1,11 +1,21 @@
- #include "minimiza.h"
+#include "minimiza.h"
 
- /*afnd *AFNDMinimiza(AFND* afnd){
-   Luego
- }
+ 
 
-
-devuelve 0 si no está*/
+/**
+ * notInCreados
+ * 
+ * Nos dice si esta en la lista de creados o no.
+ * En caso de estarlo devolveremos un 1, en caso de no estarlo un 0.
+ * 
+ * Argumentos de entrada:
+ * - creados: lista de enteros
+ * - pos: posicion
+ * - num_estados: numero de estados del automata
+ * 
+ * Salida:
+ *  0 si no esta en creados, 1 si lo esta
+ */
 int notInCreados(int *creados, int pos, int num_estados){
   int i;
 
@@ -18,7 +28,18 @@ int notInCreados(int *creados, int pos, int num_estados){
   return 0;
 }
 
-/* Devuelve 0 si no es accesible */
+/**
+ * isInAccesibles
+ * 
+ * Nos dice si una posicion es accesible o no.
+ * 
+ * Argumentos de entrada:
+ * - accesibles: lista de enteros accesibles
+ * - pos: posicion a comprobar
+ * 
+ * Salida:
+ *  0 si no es accesible, 1 si lo es
+ */
 int isInAccesibles(int *accesibles, int pos){
   if(accesibles[pos] == 0){
     return 0;
@@ -26,53 +47,19 @@ int isInAccesibles(int *accesibles, int pos){
   return 1;
 }
 
-/*void estadosAccesibles(AFND *afnd){
-   int pos_inicial, pos_llega;
-   int *creados, *accesibles;
-   int i_num_creados = 0;
-   int num_estados, num_simbolos;
-   int i_simbolo, i_estado, i;
-   int num_creados;
-
-   pos_inicial = AFNDIndiceEstadoInicial(afnd);
-   num_estados = AFNDNumEstados(afnd);
-   num_simbolos = AFNDNumSimbolos(afnd);
-
-   creados = (int *)malloc(sizeof(int) + 4);
-   creados[0] = pos_inicial;
-   i_num_creados  = 0;
-   num_creados = 1;
-
-   while(creados[i_num_creados] != -1 || i_num_creados == 0){
-     for(i_simbolo = 0; i_simbolo < num_simbolos; i_simbolo ++){
-       for(i_estado = 0; i_estado < num_estados; i_estado ++){
-         if(AFNDTransicionIndicesEstadoiSimboloEstadof(afnd, creados[i_num_creados], i_simbolo, i_estado) == 1){
-           if(notInCreados(creados, i_estado, i_num_creados) == 0){
-             printf("Hay transición de %d a %d\n", creados[i_num_creados], i_estado);
-             creados = (int *)realloc(creados, sizeof(creados)+sizeof(int) + 4*num_creados);
-             creados[num_creados] = i_estado;
-             num_creados ++;
-             creados[num_creados] = -1;
-           }
-         }
-       }
-     }
-     i_num_creados ++;
-   }
-
-
-   printf("Creados: \n");
-
-   for(i=0; i<num_creados; i++){
-     printf("%d\n", creados[i]);
-   }
-
-   free(creados);
-
-}*/
-
+/**
+ * estadosAccesibles
+ * 
+ * Nos permite obtener una lista de estados accesibles de un automata
+ * 
+ * Argumentos de entrada:
+ * - afnd: automata del que queremos saber los estados accesibles
+ * 
+ * Salida:
+ *  lista de enteros accesibles
+ */
 int* estadosAccesibles(AFND *afnd){
-   int pos_inicial, pos_llega;
+   int pos_inicial;
    int *creados, *accesibles;
    int i_num_creados = 0;
    int num_estados, num_simbolos;
@@ -130,18 +117,18 @@ int* estadosAccesibles(AFND *afnd){
 }
 
 
-int isDistinguible(int **matriz, int estado1, int estado2){
-  if(estado1 == estado2){
-    return 1;
-  }
 
-  if(matriz[estado1][estado2] == 1){
-    return 0;
-  }
-  return 1;
-}
-
-
+/**
+ * estadosDistinguibles
+ * 
+ * Nos permite saber los estados distinguibles de un automata
+ * 
+ * Argumentos de entrada:
+ * - afnd: automata del que queremos obtener los distinguivles
+ * 
+ * Salida:
+ *  matriz de los estados distingubles
+ */
 int** estadosDistinguibles(AFND *afnd){
   int num_estados, num_simbolos;
   int **matriz_distinguibles;
@@ -150,7 +137,7 @@ int** estadosDistinguibles(AFND *afnd){
    */
   int i, j, flag = 0, i_simbolo, i_cada_estado;
   /* new_pos1 y new_pos2 los utilizamos para obtener las siguientes transiciones a (i,j)*/
-  int estado_final, new_pos1 = 0, new_pos2 = 0;
+  int new_pos1 = 0, new_pos2 = 0;
 
   if(!afnd)
     return NULL;
@@ -264,15 +251,26 @@ int** estadosDistinguibles(AFND *afnd){
 
 }
 
-
-AFND* AFNDMinimiza(AFND *afnd){
+/**
+ * AFNDMinimiza
+ * 
+ * Nos permite obtener un AFND minimizado
+ * 
+ * Argumentos de entrada:
+ * - afnd: automata que queremos minimizar
+ * 
+ * Salida:
+ *  AFND ya minimizado
+ */ 
+AFND *AFNDMinimiza(AFND *afnd){
 
   int *accesibles = NULL;
   int **matriz_distinguibles = NULL, i_cada_estado_AFND;
   int i, j, num_estados, num_estados_creados = 0, i_simbolo, num_simbolos, cont_transiciones;
   int *codificacion_clase_equivalencia;
   Intermedia **estados_nuevos = NULL;
-  char nombre_nuevo_estado[MAX_NOMBRE], contador = 0;
+  char nombre_nuevo_estado[MAX_NOMBRE];
+  int contador = 0;
   AFND *minimizado;
   char buffer[MAX_NOMBRE];
   int check;
@@ -374,11 +372,12 @@ AFND* AFNDMinimiza(AFND *afnd){
   }
 
   estados_nuevos[contador] = NULL;
-  minimizado = crear_automata_determinista(afnd, estados_nuevos, contador, num_simbolos);
+  minimizado = crear_automata(afnd, estados_nuevos, contador, num_simbolos);
 
+  /* liberamos toda la memoria que hemos necesitado */
   if(accesibles)
     free(accesibles);
-
+  
   if(matriz_distinguibles){
     for (i=0; i < num_estados; i++){
       if(matriz_distinguibles[i]){
@@ -388,6 +387,9 @@ AFND* AFNDMinimiza(AFND *afnd){
     free(matriz_distinguibles);
   }
 
+  free(estados_nuevos[contador]);
+  liberar_memoria(estados_nuevos, contador);
+  free(codificacion_clase_equivalencia);
   return minimizado;
 
 }
