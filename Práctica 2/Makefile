@@ -3,7 +3,7 @@ CFLAGS = -g -Wall -ansi -pedantic
 CCFLAGS = -g -ansi
 OBJ = *.o
 
-all: prueba1 prueba2 prueba3 prueba4 prueba5 prueba_clase
+all: prueba1 prueba2 prueba3
 
 prueba1: prueba1.o afnd.o intermedia.o minimiza.o
 	$(CC) $(CFLAGS) -o prueba1 prueba1.o afnd.o intermedia.o minimiza.o
@@ -24,4 +24,4 @@ afnd.o: afnd.c afnd.h
 	$(CC) $(CCFLAGS) -c afnd.c
 
 clean:
-	rm -rf pr_afnd prueba1 prueba2 prueba3 prueba4 prueba5 prueba_clase $(OBJ) *.dot
+	rm -rf pr_afnd prueba1 prueba2 prueba3 $(OBJ) *.dot

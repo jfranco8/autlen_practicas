@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
 	AFND * p_afnd;
 	AFND * afd;
 
-	p_afnd = AFNDNuevo("prueba1", 8, 2);
+	p_afnd = AFNDNuevo("prueba2", 8, 2);
 
 	AFNDInsertaSimbolo(p_afnd,"0");
 	AFNDInsertaSimbolo(p_afnd,"1");
