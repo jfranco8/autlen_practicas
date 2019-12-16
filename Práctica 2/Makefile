@@ -5,20 +5,17 @@ OBJ = *.o
 
 all: prueba1 prueba2 prueba3 prueba4 prueba5 prueba_clase
 
-prueba1: prueba1.o transforma.o afnd.o intermedia.o minimiza.o
-	$(CC) $(CFLAGS) -o prueba1 prueba1.o transforma.o afnd.o intermedia.o minimiza.o
+prueba1: prueba1.o afnd.o intermedia.o minimiza.o
+	$(CC) $(CFLAGS) -o prueba1 prueba1.o afnd.o intermedia.o minimiza.o
 
-prueba2: prueba2.o transforma.o afnd.o intermedia.o minimiza.o
-	$(CC) $(CFLAGS) -o prueba2 prueba2.o transforma.o afnd.o intermedia.o minimiza.o
+prueba2: prueba2.o afnd.o intermedia.o minimiza.o
+	$(CC) $(CFLAGS) -o prueba2 prueba2.o afnd.o intermedia.o minimiza.o
 
-prueba3: prueba3.o transforma.o afnd.o intermedia.o minimiza.o
-	$(CC) $(CFLAGS) -o prueba3 prueba3.o transforma.o afnd.o intermedia.o minimiza.o
+prueba3: prueba3.o afnd.o intermedia.o minimiza.o
+	$(CC) $(CFLAGS) -o prueba3 prueba3.o afnd.o intermedia.o minimiza.o
 
 minimiza.o: minimiza.c minimiza.h
 	$(CC) $(CFLAGS) -c minimiza.c
-
-transforma.o: transforma.c transforma.h
-	$(CC) $(CFLAGS) -c transforma.c
 
 intermedia.o: intermedia.c intermedia.h
 	$(CC) $(CFLAGS) -c intermedia.c

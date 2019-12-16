@@ -15,7 +15,6 @@
 
 #include "afnd.h"
 #include "intermedia.h"
-#include "transforma.h"
 
 int* estadosAccesibles(AFND* afnd);
 int** estadosDistinguibles(AFND *afnd);
